@@ -16,6 +16,7 @@ import {
   Clock,
   Bot,
   Send,
+  X,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAudio } from "../../context/AudioContext";
@@ -66,7 +67,7 @@ export const EpubReader: React.FC = () => {
   const [aiMessages, setAiMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
     {
       role: "ai",
-      text: "Greetings, reader. I am your Bard companion powered by Gemini. Ask me about themes, chapter summaries, or character motivations as you read.",
+      text: "Literary Assistant. Ask about themes, characters, historical context, or vocabulary as you read.",
     },
   ]);
   const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
@@ -541,10 +542,10 @@ export const EpubReader: React.FC = () => {
           <div className="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
             <div className="flex items-center gap-2">
               <Bot className="w-4 h-4 text-[var(--accent)]" />
-              <span className="text-xs font-bold text-[var(--text-primary)]">Bard AI Companion</span>
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Literary Assistant</span>
             </div>
-            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-              Gemini 1.5 Flash
+            <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--bg-secondary)] px-2 py-0.5 rounded border border-[var(--border-color)]">
+              Gemini
             </span>
           </div>
 
@@ -552,21 +553,21 @@ export const EpubReader: React.FC = () => {
           <div className="flex gap-1.5 py-2 overflow-x-auto select-none border-b border-[var(--border-color)]">
             <button
               onClick={() => handleSendAi("Summarize the current chapter and main themes.")}
-              className="text-[10px] whitespace-nowrap px-2 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-color)]"
+              className="text-[10px] whitespace-nowrap px-2.5 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)] transition-colors"
             >
-              📖 Summarize Scene
+              Scene Summary
             </button>
             <button
               onClick={() => handleSendAi("What are the key motifs and archaic terms used here?")}
-              className="text-[10px] whitespace-nowrap px-2 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-color)]"
+              className="text-[10px] whitespace-nowrap px-2.5 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)] transition-colors"
             >
-              🔍 Motifs
+              Key Motifs
             </button>
             <button
-              onClick={() => handleSendAi("Suggest a soundtrack mood or ambient vibe for this book.")}
-              className="text-[10px] whitespace-nowrap px-2 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-color)]"
+              onClick={() => handleSendAi("Suggest a soundtrack mood or ambient theme for this book.")}
+              className="text-[10px] whitespace-nowrap px-2.5 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)] transition-colors"
             >
-              🎵 Mood Vibe
+              Atmosphere
             </button>
           </div>
 
@@ -587,7 +588,7 @@ export const EpubReader: React.FC = () => {
             {isAiLoading && (
               <div className="flex items-center gap-2 p-2 text-xs text-[var(--text-muted)]">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--accent)]" />
-                <span>Bard is pondering...</span>
+                <span>Analyzing passage...</span>
               </div>
             )}
           </div>
@@ -658,12 +659,12 @@ export const EpubReader: React.FC = () => {
           >
             <div>
               <div className="text-center mb-6 pb-4 border-b border-[var(--border-color)]">
-                <span className="text-[10px] uppercase tracking-widest text-[var(--accent)] font-bold">
-                  Ambient E-Reader
+                <span className="text-[10px] uppercase tracking-widest text-[var(--accent)] font-semibold">
+                  Reading Canvas
                 </span>
                 <h2 className="text-2xl font-bold tracking-tight mt-1">{currentBookName}</h2>
                 <p className="text-xs text-[var(--text-muted)] mt-1">
-                  Offline Reader Canvas • Ready for Reading
+                  Ready for reading • Open a book or import an EPUB
                 </p>
               </div>
 
@@ -689,7 +690,7 @@ export const EpubReader: React.FC = () => {
             <div className="mt-8 pt-4 border-t border-[var(--border-color)] flex flex-wrap items-center justify-between gap-3 text-xs">
               <label className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-medium cursor-pointer transition-all shadow-md active:scale-95">
                 <FolderOpen className="w-4 h-4" />
-                <span>Load EPUB File from Computer</span>
+                <span>Open EPUB from Computer</span>
                 <input
                   type="file"
                   accept=".epub"
@@ -699,7 +700,7 @@ export const EpubReader: React.FC = () => {
               </label>
               <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
                 <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
-                <span>Ambient audio loops automatically while reading</span>
+                <span>Synchronized ambient audio</span>
               </div>
             </div>
           </div>
@@ -716,10 +717,9 @@ export const EpubReader: React.FC = () => {
           </button>
         )}
 
-        {/* Floating Gemini AI Quick Lookup for Highlighted Text */}
+        {/* Floating Quick Lookup for Highlighted Text */}
         {selectedText && (
-          <div className="absolute bottom-6 z-40 flex items-center gap-2.5 bg-[var(--bg-surface)] border border-[var(--border-color)] px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-2">
-            <Sparkles className="w-4 h-4 text-[var(--accent)] flex-shrink-0" />
+          <div className="absolute bottom-6 z-40 flex items-center gap-2.5 bg-[var(--bg-surface)] border border-[var(--border-color)] px-4 py-2.5 rounded-xl shadow-xl backdrop-blur-md">
             <span className="text-xs text-[var(--text-primary)] max-w-xs truncate italic">
               "{selectedText}"
             </span>
@@ -731,16 +731,16 @@ export const EpubReader: React.FC = () => {
                 );
                 setSelectedText("");
               }}
-              className="px-3 py-1 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-semibold shadow-sm transition-all active:scale-95 ml-1"
+              className="px-3 py-1 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium shadow-sm transition-all active:scale-95 ml-1"
             >
-              Ask Gemini
+              Analyze
             </button>
             <button
               onClick={() => setSelectedText("")}
               className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
               title="Dismiss"
             >
-              ✕
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}

@@ -6,8 +6,6 @@ import {
   Download,
   CheckCircle,
   Search,
-  Wifi,
-  WifiOff,
   Trash2,
   Loader2,
   FolderOpen,
@@ -26,7 +24,7 @@ export const CURATED_CATALOG: StoredBook[] = [
     title: "Alice's Adventures in Wonderland",
     author: "Lewis Carroll",
     format: "EPUB",
-    coverColor: "from-purple-900 to-violet-950",
+    coverColor: "bg-slate-900 border-l-4 border-l-purple-500/40",
     ambientTheme: "Enchanted Woods & Gentle Breeze",
     isOfflineAvailable: true,
     downloadUrl: "./books/alice.epub",
@@ -38,7 +36,7 @@ export const CURATED_CATALOG: StoredBook[] = [
     title: "Frankenstein; Or, The Modern Prometheus",
     author: "Mary Wollstonecraft Shelley",
     format: "EPUB",
-    coverColor: "from-zinc-800 to-stone-950",
+    coverColor: "bg-stone-900 border-l-4 border-l-emerald-500/40",
     ambientTheme: "Midnight Thunderstorm & Soft Rain",
     isOfflineAvailable: true,
     downloadUrl: "./books/frankenstein.epub",
@@ -50,7 +48,7 @@ export const CURATED_CATALOG: StoredBook[] = [
     title: "The Time Machine",
     author: "H.G. Wells",
     format: "EPUB",
-    coverColor: "from-amber-900 to-yellow-950",
+    coverColor: "bg-zinc-900 border-l-4 border-l-amber-500/40",
     ambientTheme: "Deep Space Drone & Clockwork",
     isOfflineAvailable: false,
     downloadUrl: "https://www.gutenberg.org/ebooks/35.epub.noimages",
@@ -62,7 +60,7 @@ export const CURATED_CATALOG: StoredBook[] = [
     title: "The Adventures of Sherlock Holmes",
     author: "Arthur Conan Doyle",
     format: "EPUB",
-    coverColor: "from-blue-950 to-slate-900",
+    coverColor: "bg-slate-900 border-l-4 border-l-blue-500/40",
     ambientTheme: "Tavern Hearth & Soft Rain",
     isOfflineAvailable: false,
     downloadUrl: "https://www.gutenberg.org/ebooks/1661.epub.noimages",
@@ -74,7 +72,7 @@ export const CURATED_CATALOG: StoredBook[] = [
     title: "Dracula",
     author: "Bram Stoker",
     format: "EPUB",
-    coverColor: "from-rose-950 to-neutral-950",
+    coverColor: "bg-neutral-900 border-l-4 border-l-rose-500/40",
     ambientTheme: "Midnight Wind & Distant Thunder",
     isOfflineAvailable: false,
     downloadUrl: "https://www.gutenberg.org/ebooks/345.epub.noimages",
@@ -285,34 +283,34 @@ export const LibraryView: React.FC = () => {
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
-      {/* Top Header with Status Indicators */}
+      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[var(--border-color)] gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
-              E-Book Library & Catalog
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-xl font-semibold tracking-tight text-[var(--text-primary)]">
+              Library
             </h2>
             <span
-              className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
+              className={`flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full border ${
                 isOnline
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                  : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                  : "bg-amber-500/10 text-amber-400 border-amber-500/20"
               }`}
             >
-              {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-              {isOnline ? "Online Mode" : "Offline Mode"}
+              <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-emerald-400" : "bg-amber-400"}`} />
+              {isOnline ? "Connected" : "Offline"}
             </span>
           </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Browse online classics, download to IndexedDB for offline reading, or import local files.
+          <p className="text-xs text-[var(--text-muted)] mt-1">
+            Curated public domain classics and imported EPUB titles.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2.5">
-          <label className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-semibold shadow-md transition-all active:scale-95 cursor-pointer">
-            <FolderOpen className="w-4 h-4" />
-            <span>Import Local EPUB</span>
+          <label className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium shadow-sm transition-colors cursor-pointer">
+            <FolderOpen className="w-3.5 h-3.5" />
+            <span>Import EPUB</span>
             <input
               type="file"
               accept=".epub"
@@ -326,56 +324,56 @@ export const LibraryView: React.FC = () => {
       {/* Search Bar & Mode Filters */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Search */}
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+        <div className="relative w-full sm:w-72">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
           <input
             type="text"
-            placeholder="Search title, author..."
+            placeholder="Search titles or authors..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl pl-9 pr-4 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
           />
         </div>
 
         {/* Tab switcher */}
-        <div className="flex p-1 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)]">
+        <div className="flex p-0.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-xs">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1 rounded-md font-medium transition-colors ${
               activeTab === "all"
-                ? "bg-[var(--accent)] text-white shadow-sm"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                ? "bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
-            All Books ({books.length})
+            All ({books.length})
           </button>
           <button
             onClick={() => setActiveTab("offline")}
-            className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-md font-medium transition-colors flex items-center gap-1.5 ${
               activeTab === "offline"
-                ? "bg-[var(--accent)] text-white shadow-sm"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                ? "bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
             <CheckCircle className="w-3 h-3" />
-            Offline Ready ({books.filter((b) => b.isOfflineAvailable).length})
+            Downloaded ({books.filter((b) => b.isOfflineAvailable).length})
           </button>
           <button
             onClick={() => setActiveTab("online")}
-            className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-md font-medium transition-colors flex items-center gap-1.5 ${
               activeTab === "online"
-                ? "bg-[var(--accent)] text-white shadow-sm"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                ? "bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
             <Download className="w-3 h-3" />
-            Discover Online
+            Catalog
           </button>
         </div>
       </div>
 
       {/* Book Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {filteredBooks.map((book) => {
           const isDownloading = downloadingId === book.id;
 
@@ -383,40 +381,43 @@ export const LibraryView: React.FC = () => {
             <div
               key={book.id}
               onClick={() => handleOpenBook(book)}
-              className="group cursor-pointer rounded-2xl border border-[var(--border-color)] bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)] overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between"
+              className="group cursor-pointer rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] hover:border-[var(--text-muted)] transition-all duration-150 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md"
             >
-              {/* Book Cover simulation */}
+              {/* Book Cover */}
               <div
-                className={`h-48 bg-gradient-to-br ${book.coverColor} p-4 flex flex-col justify-between relative`}
+                className={`h-44 ${book.coverColor} p-4 flex flex-col justify-between relative select-none`}
               >
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/50 text-white backdrop-blur-sm">
+                {/* Book spine shadow overlay */}
+                <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/40 to-transparent pointer-events-none" />
+
+                <div className="flex justify-between items-start relative z-10 pl-1">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/60 text-zinc-300 border border-white/10">
                     {book.format}
                   </span>
                   {book.isOfflineAvailable ? (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/80 text-white backdrop-blur-sm flex items-center gap-1 shadow-sm">
-                      <CheckCircle className="w-2.5 h-2.5" />
-                      Offline
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      Downloaded
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/80 text-white backdrop-blur-sm flex items-center gap-1 shadow-sm">
-                      <Wifi className="w-2.5 h-2.5" />
-                      Online
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-zinc-900/80 text-zinc-300 border border-zinc-700 flex items-center gap-1">
+                      <Download className="w-2.5 h-2.5" />
+                      Cloud
                     </span>
                   )}
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white line-clamp-2 drop-shadow-md">
+                <div className="relative z-10 pl-1">
+                  <h3 className="text-sm font-semibold text-zinc-100 line-clamp-2 leading-snug">
                     {book.title}
                   </h3>
-                  <p className="text-[11px] text-white/80 mt-0.5">{book.author}</p>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">{book.author}</p>
                 </div>
               </div>
 
               {/* Book Metadata & Actions */}
-              <div className="p-4 space-y-3">
-                <div className="flex items-center gap-2 text-[11px] text-[var(--accent)] bg-[var(--bg-secondary)] px-2.5 py-1.5 rounded-lg border border-[var(--border-color)]">
-                  <Music className="w-3.5 h-3.5 flex-shrink-0" />
+              <div className="p-3.5 space-y-2.5 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]">
+                <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)] truncate">
+                  <Music className="w-3 h-3 text-[var(--accent)] flex-shrink-0" />
                   <span className="truncate">{book.ambientTheme}</span>
                 </div>
 
@@ -425,7 +426,7 @@ export const LibraryView: React.FC = () => {
                     <button
                       onClick={(e) => handleDeleteOffline(book.id, e)}
                       className="text-[10px] text-[var(--text-muted)] hover:text-rose-400 flex items-center gap-1 transition-colors"
-                      title="Delete from offline storage"
+                      title="Remove from local cache"
                     >
                       <Trash2 className="w-3 h-3" />
                       <span>Remove</span>
@@ -434,19 +435,19 @@ export const LibraryView: React.FC = () => {
                     <button
                       onClick={(e) => handleDownloadOffline(book, e)}
                       disabled={isDownloading}
-                      className="text-xs font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] flex items-center gap-1 transition-colors disabled:opacity-50"
-                      title="Download for offline access"
+                      className="text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] flex items-center gap-1 transition-colors disabled:opacity-50"
+                      title="Save for offline reading"
                     >
                       {isDownloading ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <Loader2 className="w-3 h-3 animate-spin" />
                       ) : (
-                        <Download className="w-3.5 h-3.5" />
+                        <Download className="w-3 h-3" />
                       )}
-                      <span>{isDownloading ? "Downloading..." : "Download"}</span>
+                      <span>{isDownloading ? "Saving..." : "Download"}</span>
                     </button>
                   )}
 
-                  <span className="text-xs font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] flex items-center gap-1">
+                  <span className="text-xs font-medium text-[var(--text-primary)] group-hover:text-[var(--accent)] flex items-center gap-1 transition-colors">
                     Read
                     <BookOpen className="w-3.5 h-3.5" />
                   </span>

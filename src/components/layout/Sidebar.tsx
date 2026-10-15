@@ -48,10 +48,10 @@ export const Sidebar: React.FC = () => {
         ))}
       </div>
 
-      {/* Audio Channels (Nuclear Style) */}
+      {/* Soundscapes */}
       <div className="p-3 space-y-1 border-t border-[var(--border-color)] mt-2">
         <div className="px-3 py-1.5 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider flex items-center justify-between">
-          <span>Reading Audio</span>
+          <span>Soundscapes</span>
           <Sparkles className="w-3 h-3 text-[var(--accent)]" />
         </div>
         <button
@@ -59,7 +59,7 @@ export const Sidebar: React.FC = () => {
             playTrack({
               id: "yt-lofigirl",
               youtubeId: "jfKfPfyJRdk",
-              title: "lofi hip hop radio - beats to relax/study to",
+              title: "Lofi Hip Hop Radio - Beats to relax/study to",
               artist: "Lofi Girl",
               duration: 0,
               artwork: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
@@ -68,7 +68,7 @@ export const Sidebar: React.FC = () => {
           }
           className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors text-left"
         >
-          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
+          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
           <span>Lofi Girl 24/7</span>
         </button>
         <button
@@ -115,14 +115,14 @@ export const Sidebar: React.FC = () => {
           className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors text-left"
         >
           <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
-          <span>Offline Synthesizer</span>
+          <span>Built-in Synthesizer</span>
         </button>
       </div>
 
-      {/* Context-Aware Badge (Bottom of Sidebar) */}
+      {/* Context Badge (Bottom of Sidebar) */}
       <div className="mt-auto p-3 border-t border-[var(--border-color)]">
-        <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-1.5">
-          <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+        <div className="p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-color)] space-y-1">
+          <div className="flex items-center gap-1.5 text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wider">
             <Volume2 className="w-3 h-3 text-[var(--accent)]" />
             <span>Active Session</span>
             {isPlaying && (
@@ -132,7 +132,7 @@ export const Sidebar: React.FC = () => {
           <div className="text-xs font-medium text-[var(--text-primary)] truncate">
             {linkedBookTitle || "No book active"}
           </div>
-          <div className="text-[10px] text-[var(--text-secondary)]">Context audio linked</div>
+          <div className="text-[10px] text-[var(--text-muted)]">Audio synchronized</div>
         </div>
       </div>
     </aside>

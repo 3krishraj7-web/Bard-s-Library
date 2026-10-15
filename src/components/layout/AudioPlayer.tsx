@@ -201,11 +201,11 @@ export const AudioPlayer: React.FC = () => {
               setShowModal(true);
               if (searchResults.length === 0) handleSearch();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-all shadow-md active:scale-95"
-            title="Search all songs on YouTube"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-medium transition-colors shadow-sm active:scale-95"
+            title="Search songs and soundtracks"
           >
-            <YouTubeIcon className="w-4 h-4" />
-            <span>Search Songs</span>
+            <YouTubeIcon className="w-3.5 h-3.5 text-red-500" />
+            <span>Search</span>
           </button>
 
           <button
@@ -239,28 +239,28 @@ export const AudioPlayer: React.FC = () => {
         </div>
       </div>
 
-      {/* Unified YouTube Music & Ambient Modal */}
+      {/* Unified Audio Search Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-          <div className="w-full max-w-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl shadow-2xl p-5 flex flex-col max-h-[85vh]">
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
-              <div className="flex items-center gap-2">
-                <YouTubeIcon className="w-6 h-6 text-red-500" />
+              <div className="flex items-center gap-2.5">
+                <YouTubeIcon className="w-5 h-5 text-red-500" />
                 <div>
-                  <h3 className="text-base font-bold text-[var(--text-primary)]">
-                    YouTube Music & Audio Player
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                    Audio & Soundtrack Search
                   </h3>
                   <p className="text-[11px] text-[var(--text-muted)]">
-                    Search and play any song, album, artist, or 24/7 ambient soundtrack in the world.
+                    Search songs, artists, classical pieces, and ambient soundtracks.
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                className="p-1 rounded-md hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -268,20 +268,20 @@ export const AudioPlayer: React.FC = () => {
             <div className="py-3 space-y-2.5">
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                   <input
                     type="text"
-                    placeholder="Search any song, artist, album, or ambient vibe (e.g. Bohemian Rhapsody, Lofi Girl, Chopin)..."
+                    placeholder="Search any title, artist, or soundtrack..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl pl-9 pr-4 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-red-500"
+                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
                   />
                 </div>
                 <button
                   onClick={() => handleSearch()}
                   disabled={isSearching}
-                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+                  className="px-3.5 py-1.5 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
                 >
                   {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Search"}
                 </button>
@@ -303,7 +303,7 @@ export const AudioPlayer: React.FC = () => {
                       setSearchQuery(item);
                       handleSearch(item);
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:border-red-500 hover:text-red-400 text-[var(--text-secondary)] transition-colors"
+                    className="px-2.5 py-1 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:border-[var(--accent)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     {item}
                   </button>
@@ -311,11 +311,11 @@ export const AudioPlayer: React.FC = () => {
               </div>
             </div>
 
-            {/* Offline Fallback Synthesizer Option */}
-            <div className="p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] mb-2 flex items-center justify-between text-xs">
+            {/* Offline Synthesizer Option */}
+            <div className="p-2.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] mb-2 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 text-[var(--text-muted)]">
-                <Sparkles className="w-4 h-4 text-[var(--accent)]" />
-                <span>Offline Procedural Synthesizers (Works without internet)</span>
+                <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span>Offline Synthesizers</span>
               </div>
               <div className="flex items-center gap-1.5">
                 {[
@@ -334,7 +334,7 @@ export const AudioPlayer: React.FC = () => {
                       });
                       setShowModal(false);
                     }}
-                    className="px-2 py-0.5 rounded-md bg-[var(--bg-surface)] border border-[var(--border-color)] hover:bg-[var(--bg-hover)] text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    className="px-2 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border-color)] hover:bg-[var(--bg-hover)] text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   >
                     {synth.label}
                   </button>
@@ -346,28 +346,28 @@ export const AudioPlayer: React.FC = () => {
             <div className="flex-1 overflow-y-auto space-y-2 py-2 pr-1">
               {isSearching ? (
                 <div className="flex flex-col items-center justify-center py-12 text-xs text-[var(--text-muted)] gap-2">
-                  <Loader2 className="w-6 h-6 animate-spin text-red-500" />
-                  <span>Searching YouTube database...</span>
+                  <Loader2 className="w-5 h-5 animate-spin text-[var(--accent)]" />
+                  <span>Searching music catalog...</span>
                 </div>
               ) : searchResults.length === 0 ? (
                 <div className="text-center py-12 text-xs text-[var(--text-muted)]">
-                  No tracks found. Type a song title above and press Search.
+                  No tracks found. Type a title above and press Search.
                 </div>
               ) : (
                 searchResults.map((track) => (
                   <div
                     key={track.id}
                     onClick={() => handleSelectTrack(track)}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] cursor-pointer transition-colors group"
+                    className="flex items-center justify-between p-2 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] cursor-pointer transition-colors group"
                   >
                     <div className="flex items-center gap-3 min-w-0 pr-3">
                       <img
                         src={track.thumbnail}
                         alt=""
-                        className="w-14 h-10 rounded-lg object-cover flex-shrink-0 border border-[var(--border-color)] group-hover:opacity-90 shadow-sm"
+                        className="w-12 h-9 rounded object-cover flex-shrink-0 border border-[var(--border-color)] shadow-sm"
                       />
                       <div className="min-w-0">
-                        <div className="text-xs font-semibold text-[var(--text-primary)] truncate group-hover:text-red-400">
+                        <div className="text-xs font-medium text-[var(--text-primary)] truncate group-hover:text-[var(--accent)]">
                           {track.title}
                         </div>
                         <div className="text-[10px] text-[var(--text-muted)] truncate mt-0.5">
@@ -381,7 +381,7 @@ export const AudioPlayer: React.FC = () => {
                         e.stopPropagation();
                         handleSelectTrack(track);
                       }}
-                      className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium flex items-center gap-1 shadow-sm transition-all active:scale-95"
+                      className="flex-shrink-0 px-2.5 py-1 rounded-md bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium flex items-center gap-1 shadow-sm transition-colors"
                     >
                       <Play className="w-3 h-3 ml-0.5" />
                       <span>Play</span>
@@ -393,7 +393,7 @@ export const AudioPlayer: React.FC = () => {
 
             {/* Footer */}
             <div className="pt-3 border-t border-[var(--border-color)] flex items-center justify-between text-[11px] text-[var(--text-muted)]">
-              <span>Powered by YouTube Data API v3 & YouTube IFrame Engine</span>
+              <span>Streaming engine powered by YouTube Data API v3</span>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"

@@ -40,12 +40,12 @@ export const ThemeSettings: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-[var(--border-color)]">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Palette className="w-6 h-6 text-[var(--accent)]" />
-            Appearance & System Settings
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Palette className="w-5 h-5 text-[var(--accent)]" />
+            Settings
           </h2>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Customize real-time CSS variables, manage API integrations, or inject raw custom CSS.
+          <p className="text-xs text-[var(--text-muted)] mt-1">
+            Appearance, typography, and API integrations.
           </p>
         </div>
         <button
@@ -53,7 +53,7 @@ export const ThemeSettings: React.FC = () => {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-color)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          Reset Theme Defaults
+          Reset to Defaults
         </button>
       </div>
 
@@ -316,9 +316,9 @@ export const ThemeSettings: React.FC = () => {
           <div className="flex justify-end pt-2">
             <button
               onClick={handleSaveKeys}
-              className="px-5 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-semibold shadow-md transition-colors"
+              className="px-4 py-2 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium shadow-sm transition-colors"
             >
-              Save Configuration to Local Storage
+              Save Settings
             </button>
           </div>
         </div>

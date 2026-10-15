@@ -29,7 +29,7 @@ export interface ThemeState {
 
 export const THEME_PRESETS: Record<string, { name: string; colors: ThemeColors; fontFamily: string }> = {
   nuclear: {
-    name: "Nuclear Dark",
+    name: "Slate Dark",
     colors: {
       bgPrimary: "#121318",
       bgSecondary: "#1a1b23",

@@ -11,7 +11,7 @@ export interface YouTubeTrack {
 export const CURATED_YOUTUBE_TRACKS: YouTubeTrack[] = [
   {
     id: "jfKfPfyJRdk",
-    title: "lofi hip hop radio 📚 - beats to relax/study to",
+    title: "Lofi Hip Hop Radio - Beats to relax/study to",
     channel: "Lofi Girl",
     thumbnail: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
   },
@@ -23,7 +23,7 @@ export const CURATED_YOUTUBE_TRACKS: YouTubeTrack[] = [
   },
   {
     id: "4xDzrJKXOOY",
-    title: "synthwave radio 🌌 - chill synth / retro beats to study to",
+    title: "Synthwave Radio - Chill synth / retro beats to study to",
     channel: "Lofi Girl",
     thumbnail: "https://i.ytimg.com/vi/4xDzrJKXOOY/hqdefault.jpg",
   },
