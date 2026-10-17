@@ -1,13 +1,15 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { BookOpen, BookMarked, Settings, Music, Volume2, Sparkles } from "lucide-react";
+import { Home, BookOpen, BookMarked, Settings, Music, Volume2, Sparkles } from "lucide-react";
 import { useAudio } from "../../context/AudioContext";
+import { BardsLogo } from "../common/BardsLogo";
 
 export const Sidebar: React.FC = () => {
   const { linkedBookTitle, isPlaying, playTrack } = useAudio();
 
   const navItems = [
-    { to: "/", label: "Library", icon: BookOpen },
+    { to: "/", label: "Home", icon: Home },
+    { to: "/library", label: "Library", icon: BookOpen },
     { to: "/reader", label: "Reader", icon: BookMarked },
     { to: "/settings", label: "Settings", icon: Settings },
   ];
@@ -16,8 +18,8 @@ export const Sidebar: React.FC = () => {
     <aside className="w-60 flex-shrink-0 flex flex-col h-full bg-[var(--bg-secondary)] border-r border-[var(--border-color)] select-none">
       {/* App Branding */}
       <div className="h-14 flex items-center gap-2.5 px-5 border-b border-[var(--border-color)]">
-        <div className="w-8 h-8 rounded-lg bg-[var(--accent)] flex items-center justify-center text-white shadow-md">
-          <BookOpen className="w-4 h-4" />
+        <div className="w-8 h-8 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-center shadow-md">
+          <BardsLogo size={22} />
         </div>
         <div>
           <h1 className="text-sm font-bold tracking-tight text-[var(--text-primary)]">Bard's Library</h1>
@@ -57,19 +59,53 @@ export const Sidebar: React.FC = () => {
         <button
           onClick={() =>
             playTrack({
-              id: "yt-lofigirl",
-              youtubeId: "jfKfPfyJRdk",
-              title: "Lofi Hip Hop Radio - Beats to relax/study to",
-              artist: "Lofi Girl",
+              id: "yt-interstellar",
+              youtubeId: "UDVtMYqUAyw",
+              title: "Hans Zimmer - Interstellar Main Theme (Piano & Strings)",
+              artist: "Hans Zimmer",
               duration: 0,
-              artwork: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
-              isLiveStream: true,
+              artwork: "https://i.ytimg.com/vi/UDVtMYqUAyw/hqdefault.jpg",
+              isLiveStream: false,
             })
           }
           className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors text-left"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
-          <span>Lofi Girl 24/7</span>
+          <Music className="w-3.5 h-3.5 text-[var(--accent)]" />
+          <span className="truncate">Interstellar (Piano & Strings)</span>
+        </button>
+        <button
+          onClick={() =>
+            playTrack({
+              id: "yt-hobbits",
+              youtubeId: "q8ir8hCTnwg",
+              title: "Concerning Hobbits - Lord of the Rings (Acoustic)",
+              artist: "Howard Shore",
+              duration: 0,
+              artwork: "https://i.ytimg.com/vi/q8ir8hCTnwg/hqdefault.jpg",
+              isLiveStream: false,
+            })
+          }
+          className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors text-left"
+        >
+          <Music className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+          <span className="truncate">Concerning Hobbits (Acoustic)</span>
+        </button>
+        <button
+          onClick={() =>
+            playTrack({
+              id: "yt-nuvole",
+              youtubeId: "kcihcYEOeic",
+              title: "Ludovico Einaudi - Nuvole Bianche (Smooth Piano)",
+              artist: "Ludovico Einaudi",
+              duration: 0,
+              artwork: "https://i.ytimg.com/vi/kcihcYEOeic/hqdefault.jpg",
+              isLiveStream: false,
+            })
+          }
+          className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors text-left"
+        >
+          <Music className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+          <span className="truncate">Nuvole Bianche (Piano)</span>
         </button>
         <button
           onClick={() =>

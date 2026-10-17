@@ -42,13 +42,13 @@ interface AudioContextType {
 }
 
 const DEFAULT_TRACK: Track = {
-  id: "yt-lofigirl",
-  youtubeId: "jfKfPfyJRdk",
-  title: "Lofi Hip Hop Radio - Beats to relax/study to",
-  artist: "Lofi Girl",
+  id: "yt-interstellar",
+  youtubeId: "UDVtMYqUAyw",
+  title: "Hans Zimmer - Interstellar Main Theme (Piano & Strings)",
+  artist: "Hans Zimmer",
   duration: 0,
-  artwork: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
-  isLiveStream: true,
+  artwork: "https://i.ytimg.com/vi/UDVtMYqUAyw/hqdefault.jpg",
+  isLiveStream: false,
 };
 
 const AudioContext = createContext<AudioContextType | null>(null);

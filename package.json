@@ -5,13 +5,14 @@
   "author": "Bard's Library Contributors",
   "license": "MIT",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "start": "electron .",
     "tauri": "tauri",
     "package:exe": "npm run build && electron-builder --win portable",
     "package:setup": "npm run build && electron-builder --win nsis"
@@ -23,13 +24,16 @@
     "electronLanguages": ["en-US"],
     "asar": true,
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "build"
     },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "build/**/*"
     ],
     "win": {
+      "icon": "build/icon.ico",
       "target": [
         "portable",
         "nsis"

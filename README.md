@@ -2,7 +2,7 @@
 
 > A distraction-free desktop e-reader and ambient music workspace engineered for deep reading, study sessions, and literary exploration.
 
-[![Release](https://img.shields.io/badge/release-v0.2.0-6366f1.svg)](https://github.com)
+[![Release](https://img.shields.io/badge/release-v1.0.0-6366f1.svg)](https://github.com)
 [![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178c6.svg)](https://www.typescriptlang.org/)
 [![Electron](https://img.shields.io/badge/Electron-44.7-47848f.svg)](https://www.electronjs.org/)
@@ -21,56 +21,41 @@ Whether you are studying classic literature with synchronized classical piano, w
 
 ## Key Features
 
-### 📖 Distraction-Free EPUB Reader
-- **Rendering Engine**: Built on `epub.js` with virtual pagination, continuous progress tracking, and chapter navigation.
-- **Customizable Typography**: Real-time controls for font sizing (`12px` to `36px`), line height, reading margins (`Narrow`, `Normal`, `Wide`), and typeface selection (Serif, Sans-serif, Monospace).
-- **Zen Focus Mode**: Instant full-canvas immersion collapsing the sidebar and player dock. Easily toggled via toolbar button or `Escape` key.
-- **Persistent Bookmarks**: One-click bookmarking tied to specific EPUB CFI locations, saved across sessions.
-- **Starter Public Domain Classics**: Bundles starter titles (*Alice's Adventures in Wonderland* and *Frankenstein*) pre-cached in local IndexedDB.
+### 🌐 Global Online Catalog & Web EPUB Importer
+- **70,000+ Online Books, Manga Adaptations & Light Novels**: Search Gutenberg and open web libraries via live REST integration with Gutendex. Filter across Manga & Comics, Light Novels, Manhwa & Asian Fiction, Biographies & Memoirs, Novels & Classics, Sci-Fi & Cyberpunk, Mystery, and Philosophy.
+- **1-Click Download & Read**: Download online titles directly into local IndexedDB for permanent offline access.
+- **Direct Web Link Importer**: Paste any CORS-accessible `.epub` link from Standard Ebooks, Archive.org, or online light novel / webtoon mirrors to download and read immediately.
+- **Local File Drag-and-Drop**: Load any personal `.epub` file directly from your computer with automated metadata parsing.
 
-### 🖍️ Multi-Color Highlights & Notes Drawer
-- **Inline Text Highlighting**: Select any passage in the reader to apply persistent color highlights in Yellow, Mint, or Violet.
-- **Live Canvas Annotations**: Renders directly on virtual EPUB pages via epub.js annotation hooks.
-- **Notes Flyout Drawer**: Browse all captured quotes with timestamp tags, jump directly to page locations, attach notes, or remove highlights.
-
-### ⏱️ Sleep Timer & Smooth Volume Fade
-- **Preset Countdown Timers**: Configure sleep shutoff intervals (`15m`, `30m`, `45m`, `60m`, or `Off`).
-- **Smooth 30s Audio Fade**: Automatically decreases volume during the final 30 seconds to prevent abrupt silence during rest or study.
-
-### 📊 Local-First Reading Analytics & Streaks
-- **Zero-Telemetry Tracking**: Total reading duration, daily session logs, and continuous day streaks calculated completely client-side in IndexedDB.
-- **Library Dashboard**: Quick-reference statistics displayed directly above your book catalog.
-
-### 🎵 Unified YouTube Audio Dock
-- **World Catalog Search**: Search and stream any song, artist, classical album, or ambient track directly using the YouTube Data API v3.
-- **Headless Background Playback**: Leverages a hidden YouTube IFrame player that keeps audio streaming seamlessly while you read and navigate between views.
-- **24/7 Live Stream Support**: Native handling for live radio broadcasts (e.g., Lofi Girl, synthwave streams) with live indicators and buffer management.
-- **Volume & Scrubbing**: Precision seeker bar, volume slider, mute toggle, and repeat/shuffle controls.
-
-### 🌧️ Zero-Dependency Web Audio Synthesizers
-- **100% Offline Procedural Soundscapes**: When no internet connection is available, the built-in Web Audio API synthesizer generates real-time noise algorithms:
-  - **Tavern Hearth & Soft Rain**: Pink-noise filtered raindrops layered over a low-pass woodfire resonance.
-  - **Campfire & Crackle**: Warm white-noise bandpass filter with randomized high-frequency transient pops.
-  - **Deep Space Binaural Drone**: Dual detuned sine wave oscillators producing calming theta-wave beats.
-
-### 🤖 Gemini Literary Assistant
-- **Contextual In-Book Analysis**: Powered by Google Gemini (`gemini-1.5-flash`), providing immediate analysis of literary themes, historical context, symbolism, and character arcs.
-- **Highlight-to-Analyze**: Select any phrase or passage in the book to open a floating analysis badge that directly explains vocabulary or complex subtext.
-- **One-Click Discussion Prompts**: Pre-configured prompts for Scene Summary, Key Motifs, and Atmospheric Soundtrack matching.
+### 🤖 AI Soundtrack & Next-Read Matchmaker
+- **Dedicated Reading Companion**: Built with Google Gemini (`gemini-1.5-flash`) with full zero-key / offline fallback support. Replaces generic chatbot banter with focused literary matchmaking.
+- **Book-Matched Soundtrack Matchmaker**: Select or type customizable moods (*Cozy Study*, *Melancholic Rain*, *Epic Fantasy*, *Gothic Dark*, *Peaceful Forest*, *Cyberpunk Synth*). Recommends 3 curated, mood-calibrated instrumental tracks with 1-click **Play in Dock** button that immediately queues and plays the audio in the bottom player dock.
+- **End-of-Book Next-Read Matchmaker**: Suggests kindred books, manga, and series when finishing a chapter or book (>95% progress). Filter by format (*Manga*, *Light Novel*, *Manhwa*, *Biography*, *Novel*) with 1-click **Find in Catalog** to instantly search the online open library.
+- **Highlight-to-Music**: Select any evocative passage in the text to instantly generate book-matched ambient music matching the emotional tone of that exact scene.
 
 ### 💾 Local-First Storage (IndexedDB)
 - **Zero Account Requirement**: Books and reading data remain on your local machine.
 - **Blob Caching**: Downloaded public domain titles and imported local `.epub` files are stored as binary Blobs in IndexedDB (`bards_library_offline_db`), guaranteeing complete offline availability.
 
-### 🎨 Modular Theming & Runtime CSS
-- **Curated Presets**: Switch instantly between **Slate Dark**, **Midnight Blue**, **Warm Sepia Paper**, and **Pure Black (OLED)**.
-- **Real-time Token Engine**: Customize CSS variables (`--bg-primary`, `--accent`, `--border-color`) with live color pickers.
-- **Live CSS Injection**: Inject custom stylesheet rules directly into the application runtime without rebuilding.
+### ⚡ Optimized Performance & Code Splitting
+- **Modular Bundles**: Rollup-split chunks for `vendor` (React core), `reader` (epub.js), and `icons` (Lucide) ensuring sub-second startup times and clean memory usage.
 
-### 📦 Optimized Windows Executable
+### 📦 Windows Executable Distribution
 - **Lightweight Distribution**: Chromium language packages pruned and compressed with LZMA2:
-  - **Portable Executable**: Standalone `release/Bard's Library 0.2.0.exe` (~100 MB).
-  - **Setup Installer**: Configurable NSIS `release/Bard's Library Setup 0.2.0.exe` (~112 MB).
+  - **Portable Executable**: Standalone `release/Bard's Library 1.0.0.exe` (~100 MB).
+  - **Setup Installer**: Configurable NSIS `release/Bard's Library Setup 1.0.0.exe` (~112 MB).
+
+---
+
+## Content Formats & Global Catalog Availability
+
+| Format | Availability & Ingestion Method | Notes |
+|---|---|---|
+| **Classics & World Literature** | Built-in Online Catalog (70,000+ Gutendex / Gutenberg titles) | Fully public domain; 1-click download directly into offline IndexedDB. |
+| **Biographies & Memoirs** | Built-in Online Catalog + Curated Starter Titles | Includes historical autobiographies (Benjamin Franklin, Marcus Aurelius, Ulysses S. Grant). |
+| **Light Novels & Web Fiction** | Online Discovery + Direct Web URL Importer | Public domain serialized adventures (Dumas, Verne) + direct EPUB import from web serial archives (Royal Road mirrors, Syosetu translations). |
+| **Manga & Comics Adaptations** | Direct Web URL Importer + Local File Dropper | Graphic illustrated classics (Tenniel's *Alice*, Doré's *Inferno*) plus personal EPUB graphic files. Commercial manga (Shueisha, Kodansha) are copyrighted and cannot be pre-bundled legally, but load seamlessly via local drag-and-drop. |
+| **Manhwa & Webtoons** | Direct Web URL Importer + AI Matchmaker | Load webtoon EPUB conversions or discover top series through the AI Next-Read Matchmaker with 1-click catalog search. |
 
 ---
 

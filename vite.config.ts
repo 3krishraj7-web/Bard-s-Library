@@ -7,6 +7,7 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(() => ({
+  base: "./",
   plugins: [react(), tailwindcss()],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -29,5 +30,19 @@ export default defineConfig(() => ({
       // 3. tell Vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
     },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("epubjs")) return "reader";
+            if (id.includes("lucide-react")) return "icons";
+            return "vendor";
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   },
 }));

@@ -331,7 +331,7 @@ export const AudioPlayer: React.FC = () => {
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                   <input
                     type="text"
-                    placeholder="Search any title, artist, or soundtrack..."
+                    placeholder="Search any song, artist, anime OST, or paste any YouTube link..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -347,14 +347,17 @@ export const AudioPlayer: React.FC = () => {
                 </button>
               </div>
 
-              {/* Quick Curated Reading Soundtracks */}
+              {/* Quick Curated Reading & Anime Soundtracks */}
               <div className="flex flex-wrap gap-1.5 text-[11px]">
                 {[
-                  "Lofi Girl 24/7",
-                  "Chopin Nocturnes",
                   "Interstellar Soundtrack",
+                  "Concerning Hobbits LOTR",
+                  "Ludovico Einaudi Piano",
+                  "Studio Ghibli Piano",
+                  "Chopin Nocturnes",
+                  "English Acoustic Guitar",
+                  "Zelda & Chill",
                   "Coffee Shop Jazz",
-                  "Heavy Rain & Thunder",
                   "Medieval Tavern Ambiance",
                 ].map((item) => (
                   <button

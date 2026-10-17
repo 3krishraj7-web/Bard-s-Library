@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import ePub, { Book, Rendition } from "epubjs";
 import {
   ChevronLeft,
@@ -15,12 +15,16 @@ import {
   BookmarkCheck,
   Clock,
   Bot,
-  Send,
   X,
   Highlighter,
   Maximize2,
   Minimize2,
   Trash2,
+  Music,
+  Compass,
+  Play,
+  RefreshCw,
+  Library,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAudio } from "../../context/AudioContext";
@@ -34,7 +38,14 @@ import {
   deleteHighlight,
   recordReadingTime,
 } from "../../services/offlineDb";
-import { askGemini } from "../../services/geminiService";
+import {
+  getSoundtrackRecommendations,
+  getNextBookRecommendations,
+  READING_MOODS,
+  SoundtrackRecommendation,
+  BookRecommendation,
+  ReadingFormat,
+} from "../../services/geminiService";
 import { CURATED_CATALOG } from "../library/LibraryView";
 import type { AppLayoutContext } from "../layout/AppLayout";
 
@@ -60,6 +71,7 @@ interface SavedBookmark {
 }
 
 export const EpubReader: React.FC = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const targetBookId = queryParams.get("bookId");
@@ -69,11 +81,12 @@ export const EpubReader: React.FC = () => {
   const toggleZenMode = outletContext?.toggleZenMode ?? (() => {});
 
   const { theme, setTypography } = useTheme();
-  const { linkedBookTitle, setLinkedBook } = useAudio();
+  const { linkedBookTitle, setLinkedBook, playTrack, currentTrack } = useAudio();
 
   const viewerRef = useRef<HTMLDivElement>(null);
   const bookRef = useRef<Book | null>(null);
   const renditionRef = useRef<Rendition | null>(null);
+  const hasPromptedNextReadRef = useRef<boolean>(false);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentBookName, setCurrentBookName] = useState<string>(
@@ -89,19 +102,83 @@ export const EpubReader: React.FC = () => {
   const [showBookmarks, setShowBookmarks] = useState<boolean>(false);
   const [currentCfi, setCurrentCfi] = useState<string>("");
   const [readingSeconds, setReadingSeconds] = useState<number>(0);
+
+  // Dedicated AI Companion State: Soundtracks & Next Reads
   const [showAi, setShowAi] = useState<boolean>(false);
-  const [aiPrompt, setAiPrompt] = useState<string>("");
-  const [aiMessages, setAiMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
-    {
-      role: "ai",
-      text: "Literary Assistant. Ask about themes, characters, historical context, or vocabulary as you read.",
-    },
-  ]);
-  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
+  const [aiTab, setAiTab] = useState<"soundtrack" | "nextRead">("soundtrack");
+  const [soundtrackMood, setSoundtrackMood] = useState<string>("cozy");
+  const [customSoundtrackVibe, setCustomSoundtrackVibe] = useState<string>("");
+  const [soundtracks, setSoundtracks] = useState<SoundtrackRecommendation[]>([]);
+  const [isGeneratingSoundtracks, setIsGeneratingSoundtracks] = useState<boolean>(false);
+
+  const [formatFilter, setFormatFilter] = useState<ReadingFormat>("All");
+  const [customNextReadVibe, setCustomNextReadVibe] = useState<string>("");
+  const [nextReads, setNextReads] = useState<BookRecommendation[]>([]);
+  const [isGeneratingNextReads, setIsGeneratingNextReads] = useState<boolean>(false);
+
   const [selectedText, setSelectedText] = useState<string>("");
   const [selectedCfiRange, setSelectedCfiRange] = useState<string>("");
   const [highlights, setHighlights] = useState<HighlightItem[]>([]);
   const [showHighlights, setShowHighlights] = useState<boolean>(false);
+
+  // Fetch soundtrack recommendations
+  const handleFetchSoundtracks = async (mood: string = soundtrackMood, customNote?: string) => {
+    setIsGeneratingSoundtracks(true);
+    const results = await getSoundtrackRecommendations(
+      currentBookName,
+      mood,
+      customNote || customSoundtrackVibe,
+    );
+    setSoundtracks(results);
+    setIsGeneratingSoundtracks(false);
+  };
+
+  // Fetch next read recommendations
+  const handleFetchNextReads = async (filter: ReadingFormat = formatFilter, customVibe?: string) => {
+    setIsGeneratingNextReads(true);
+    const results = await getNextBookRecommendations(
+      currentBookName,
+      filter,
+      customVibe || customNextReadVibe,
+    );
+    setNextReads(results);
+    setIsGeneratingNextReads(false);
+  };
+
+  // Play recommended track into audio dock
+  const handlePlayRecommendedTrack = (rec: SoundtrackRecommendation) => {
+    playTrack(
+      {
+        id: rec.youtubeId ? `yt-${rec.youtubeId}` : `yt-rec-${Date.now()}`,
+        title: rec.title,
+        artist: rec.artist,
+        duration: 0,
+        youtubeId: rec.youtubeId || "UDVtMYqUAyw",
+        artwork: rec.youtubeId
+          ? `https://i.ytimg.com/vi/${rec.youtubeId}/hqdefault.jpg`
+          : undefined,
+        isLiveStream: false,
+        genre: rec.mood,
+      },
+      currentBookName,
+    );
+  };
+
+  // 1-Click navigate to Online Library Catalog with search query preloaded
+  const handleSearchNextReadInCatalog = (rec: BookRecommendation) => {
+    navigate("/", { state: { openOnlineSearch: rec.title } });
+  };
+
+  // Automatically fetch recommendations when drawer first opens
+  useEffect(() => {
+    if (showAi) {
+      if (aiTab === "soundtrack" && soundtracks.length === 0) {
+        handleFetchSoundtracks(soundtrackMood);
+      } else if (aiTab === "nextRead" && nextReads.length === 0) {
+        handleFetchNextReads(formatFilter);
+      }
+    }
+  }, [showAi, aiTab, currentBookName]);
 
   const applyAnnotationToRendition = (
     cfiRange: string,
@@ -165,19 +242,6 @@ export const EpubReader: React.FC = () => {
     if (renditionRef.current) {
       renditionRef.current.display(cfiRange);
     }
-  };
-
-  const handleSendAi = async (customText?: string) => {
-    const textToSend = customText || aiPrompt;
-    if (!textToSend.trim() || isAiLoading) return;
-
-    setAiMessages((prev) => [...prev, { role: "user", text: textToSend }]);
-    if (!customText) setAiPrompt("");
-    setIsAiLoading(true);
-
-    const reply = await askGemini(textToSend, `Currently reading: ${currentBookName}`);
-    setAiMessages((prev) => [...prev, { role: "ai", text: reply }]);
-    setIsAiLoading(false);
   };
 
   // Reading session timer
@@ -306,8 +370,16 @@ export const EpubReader: React.FC = () => {
             ? location.start.percentage * 100
             : 0;
           setCurrentCfi(cfi);
-          setReadingProgress(Math.round(percentage));
+          const pct = Math.round(percentage);
+          setReadingProgress(pct);
           saveReadingState(generatedId, cfi, percentage);
+
+          // Prompt Next-Read matchmaker when reaching the climax / end of the book
+          if (pct >= 95 && !hasPromptedNextReadRef.current) {
+            hasPromptedNextReadRef.current = true;
+            setShowAi(true);
+            setAiTab("nextRead");
+          }
         }
       });
 
@@ -692,81 +764,274 @@ export const EpubReader: React.FC = () => {
         </div>
       )}
 
-      {/* AI Companion Flyout Drawer */}
+      {/* AI Companion Flyout Drawer: Dedicated Soundtracks & Next Reads */}
       {showAi && (
-        <div className="absolute top-16 right-6 w-96 max-h-[520px] z-50 flex flex-col rounded-2xl border border-[var(--border-color)] bg-[var(--bg-surface)] p-4 shadow-2xl backdrop-blur-md">
+        <div className="absolute top-16 right-6 w-96 max-h-[580px] z-50 flex flex-col rounded-2xl border border-[var(--border-color)] bg-[var(--bg-surface)] p-4 shadow-2xl backdrop-blur-md">
+          {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
             <div className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-[var(--accent)]" />
-              <span className="text-xs font-semibold text-[var(--text-primary)]">Literary Assistant</span>
+              <Sparkles className="w-4 h-4 text-[var(--accent)]" />
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Bard's Companion</span>
             </div>
-            <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--bg-secondary)] px-2 py-0.5 rounded border border-[var(--border-color)]">
-              Gemini
-            </span>
-          </div>
-
-          {/* Quick Prompts */}
-          <div className="flex gap-1.5 py-2 overflow-x-auto select-none border-b border-[var(--border-color)]">
-            <button
-              onClick={() => handleSendAi("Summarize the current chapter and main themes.")}
-              className="text-[10px] whitespace-nowrap px-2.5 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)] transition-colors"
-            >
-              Scene Summary
-            </button>
-            <button
-              onClick={() => handleSendAi("What are the key motifs and archaic terms used here?")}
-              className="text-[10px] whitespace-nowrap px-2.5 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)] transition-colors"
-            >
-              Key Motifs
-            </button>
-            <button
-              onClick={() => handleSendAi("Suggest a soundtrack mood or ambient theme for this book.")}
-              className="text-[10px] whitespace-nowrap px-2.5 py-1 rounded-md bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)] transition-colors"
-            >
-              Atmosphere
-            </button>
-          </div>
-
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto space-y-3 py-3 max-h-72 text-xs">
-            {aiMessages.map((msg, i) => (
-              <div
-                key={i}
-                className={`p-2.5 rounded-xl ${
-                  msg.role === "user"
-                    ? "bg-[var(--accent)] text-white ml-6"
-                    : "bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)] mr-6"
-                }`}
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--bg-secondary)] px-2 py-0.5 rounded border border-[var(--border-color)]">
+                AI Matchmaker
+              </span>
+              <button
+                onClick={() => setShowAi(false)}
+                className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                title="Close Drawer"
               >
-                {msg.text}
-              </div>
-            ))}
-            {isAiLoading && (
-              <div className="flex items-center gap-2 p-2 text-xs text-[var(--text-muted)]">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--accent)]" />
-                <span>Analyzing passage...</span>
-              </div>
-            )}
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
-          {/* Input Box */}
-          <div className="pt-2 border-t border-[var(--border-color)] flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Ask anything about the book..."
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendAi()}
-              className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
-            />
+          {/* Mode Switcher Tabs */}
+          <div className="grid grid-cols-2 gap-1.5 p-1 my-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
             <button
-              onClick={() => handleSendAi()}
-              disabled={isAiLoading || !aiPrompt.trim()}
-              className="p-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white disabled:opacity-50 transition-colors shadow-sm"
+              onClick={() => {
+                setAiTab("soundtrack");
+                if (soundtracks.length === 0) handleFetchSoundtracks(soundtrackMood);
+              }}
+              className={`py-1.5 px-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                aiTab === "soundtrack"
+                  ? "bg-[var(--accent)] text-white shadow-sm"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
             >
-              <Send className="w-3.5 h-3.5" />
+              <Music className="w-3.5 h-3.5" />
+              <span>Soundtracks</span>
+            </button>
+            <button
+              onClick={() => {
+                setAiTab("nextRead");
+                if (nextReads.length === 0) handleFetchNextReads(formatFilter);
+              }}
+              className={`py-1.5 px-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                aiTab === "nextRead"
+                  ? "bg-[var(--accent)] text-white shadow-sm"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>Next Reads</span>
             </button>
           </div>
+
+          {/* TAB 1: SOUNDTRACK MATCHMAKER */}
+          {aiTab === "soundtrack" && (
+            <div className="flex-1 flex flex-col min-h-0 space-y-3">
+              {/* Mood Quick Chips */}
+              <div className="flex gap-1 overflow-x-auto pb-1 select-none">
+                {READING_MOODS.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => {
+                      setSoundtrackMood(m.id);
+                      handleFetchSoundtracks(m.id);
+                    }}
+                    className={`text-[10px] whitespace-nowrap px-2.5 py-1 rounded-lg border transition-all ${
+                      soundtrackMood === m.id
+                        ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-sm"
+                        : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-color)]"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Custom Vibe Input */}
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  placeholder="Custom mood (e.g. rain & violin, cyberpunk)..."
+                  value={customSoundtrackVibe}
+                  onChange={(e) => setCustomSoundtrackVibe(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleFetchSoundtracks(soundtrackMood, customSoundtrackVibe)}
+                  className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-2.5 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                />
+                <button
+                  onClick={() => handleFetchSoundtracks(soundtrackMood, customSoundtrackVibe)}
+                  disabled={isGeneratingSoundtracks}
+                  className="p-1.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white disabled:opacity-50 transition-colors shadow-sm"
+                  title="Generate book-matched soundtrack"
+                >
+                  {isGeneratingSoundtracks ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+
+              {/* Soundtrack Cards List */}
+              <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-72">
+                {isGeneratingSoundtracks ? (
+                  <div className="py-12 flex flex-col items-center justify-center gap-2 text-[var(--text-muted)]">
+                    <Loader2 className="w-6 h-6 animate-spin text-[var(--accent)]" />
+                    <span className="text-xs">Composing book soundtrack...</span>
+                  </div>
+                ) : soundtracks.length === 0 ? (
+                  <div className="py-12 text-center text-[var(--text-muted)] text-xs">
+                    No soundtracks generated yet. Click a mood above to start.
+                  </div>
+                ) : (
+                  soundtracks.map((track, idx) => {
+                    const isNowPlaying = currentTrack?.title === track.title;
+
+                    return (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:border-[var(--text-muted)] transition-all space-y-2 group"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-xs font-semibold text-[var(--text-primary)] line-clamp-1">
+                              {track.title}
+                            </h4>
+                            <p className="text-[10px] text-[var(--text-muted)] truncate">
+                              {track.artist} • <span className="text-[var(--accent)]">{track.mood}</span>
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handlePlayRecommendedTrack(track)}
+                            className={`p-2 rounded-xl text-xs font-medium flex items-center gap-1 transition-all shadow-sm active:scale-95 ${
+                              isNowPlaying
+                                ? "bg-emerald-500 text-white"
+                                : "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white"
+                            }`}
+                            title="Play in Audio Dock"
+                          >
+                            <Play className="w-3 h-3 fill-current" />
+                            <span className="text-[10px]">{isNowPlaying ? "Playing" : "Play"}</span>
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-[var(--text-secondary)] italic leading-tight">
+                          "{track.rationale}"
+                        </p>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: NEXT-READ MATCHMAKER */}
+          {aiTab === "nextRead" && (
+            <div className="flex-1 flex flex-col min-h-0 space-y-3">
+              {/* Format Filter Chips */}
+              <div className="flex gap-1 overflow-x-auto pb-1 select-none">
+                {(["All", "Manga", "Light Novel", "Manhwa", "Biography", "Novel"] as ReadingFormat[]).map(
+                  (fmt) => (
+                    <button
+                      key={fmt}
+                      onClick={() => {
+                        setFormatFilter(fmt);
+                        handleFetchNextReads(fmt);
+                      }}
+                      className={`text-[10px] whitespace-nowrap px-2.5 py-1 rounded-lg border transition-all ${
+                        formatFilter === fmt
+                          ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-sm"
+                          : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-color)]"
+                      }`}
+                    >
+                      {fmt}
+                    </button>
+                  ),
+                )}
+              </div>
+
+              {/* Custom Vibe Input */}
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  placeholder="Themes (e.g. dark fantasy, revenge, cozy merchant)..."
+                  value={customNextReadVibe}
+                  onChange={(e) => setCustomNextReadVibe(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleFetchNextReads(formatFilter, customNextReadVibe)}
+                  className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-2.5 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                />
+                <button
+                  onClick={() => handleFetchNextReads(formatFilter, customNextReadVibe)}
+                  disabled={isGeneratingNextReads}
+                  className="p-1.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white disabled:opacity-50 transition-colors shadow-sm"
+                  title="Find tailored next reads"
+                >
+                  {isGeneratingNextReads ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+
+              {/* Next Read Cards List */}
+              <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-72">
+                {isGeneratingNextReads ? (
+                  <div className="py-12 flex flex-col items-center justify-center gap-2 text-[var(--text-muted)]">
+                    <Loader2 className="w-6 h-6 animate-spin text-[var(--accent)]" />
+                    <span className="text-xs">Finding kindred literature...</span>
+                  </div>
+                ) : nextReads.length === 0 ? (
+                  <div className="py-12 text-center text-[var(--text-muted)] text-xs">
+                    No recommendations found. Try selecting another format above.
+                  </div>
+                ) : (
+                  nextReads.map((rec, idx) => {
+                    const badgeStyles: Record<string, string> = {
+                      Manga: "bg-pink-950/80 text-pink-300 border-pink-500/40",
+                      "Light Novel": "bg-purple-950/80 text-purple-300 border-purple-500/40",
+                      Manhwa: "bg-cyan-950/80 text-cyan-300 border-cyan-500/40",
+                      Biography: "bg-amber-950/80 text-amber-300 border-amber-500/40",
+                      Novel: "bg-emerald-950/80 text-emerald-300 border-emerald-500/40",
+                    };
+
+                    return (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:border-[var(--text-muted)] transition-all space-y-2 group"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span
+                                className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border ${
+                                  badgeStyles[rec.category] || "bg-zinc-800 text-zinc-300 border-zinc-700"
+                                }`}
+                              >
+                                {rec.category}
+                              </span>
+                              <span className="text-[10px] text-[var(--text-muted)] truncate">
+                                {rec.vibe}
+                              </span>
+                            </div>
+                            <h4 className="text-xs font-semibold text-[var(--text-primary)] line-clamp-1">
+                              {rec.title}
+                            </h4>
+                            <p className="text-[10px] text-[var(--text-muted)]">By {rec.author}</p>
+                          </div>
+                          <button
+                            onClick={() => handleSearchNextReadInCatalog(rec)}
+                            className="px-2.5 py-1.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-[10px] font-medium flex items-center gap-1 shadow-sm transition-all active:scale-95"
+                            title="Find in Online Catalog"
+                          >
+                            <Library className="w-3 h-3" />
+                            <span>Catalog</span>
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-[var(--text-secondary)] leading-tight">
+                          {rec.whyRecommend}
+                        </p>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -986,15 +1251,16 @@ export const EpubReader: React.FC = () => {
               onClick={() => {
                 setShowAi(true);
                 setShowHighlights(false);
-                handleSendAi(
-                  `Please explain the meaning, literary themes, and context of this excerpt from "${currentBookName}": "${selectedText}"`,
-                );
+                setAiTab("soundtrack");
+                setCustomSoundtrackVibe(selectedText.slice(0, 100));
+                handleFetchSoundtracks(soundtrackMood, selectedText.slice(0, 100));
                 setSelectedText("");
                 setSelectedCfiRange("");
               }}
-              className="px-2.5 py-1 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium shadow-sm transition-all active:scale-95 ml-1"
+              className="px-2.5 py-1 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium shadow-sm transition-all active:scale-95 ml-1 flex items-center gap-1"
             >
-              Analyze
+              <Music className="w-3 h-3" />
+              <span>Match Music</span>
             </button>
             <button
               onClick={() => {
