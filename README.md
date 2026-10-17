@@ -1,6 +1,6 @@
 # Bard's Library 📖 🎵
 
-> A distraction-free desktop e-reader and ambient music workspace engineered for deep reading, study sessions, and literary exploration.
+> Distraction-free desktop e-reader and ambient soundscape workspace engineered for deep reading, study sessions, and literary exploration.
 
 [![Release](https://img.shields.io/badge/release-v1.0.0-6366f1.svg)](https://github.com)
 [![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://react.dev/)
@@ -13,49 +13,56 @@
 
 ## Overview
 
-**Bard's Library** merges an offline-first EPUB reading engine with a native audio dock and an integrated Gemini literary assistant. It solves the friction of managing separate reading apps, background music tabs, and research tools by unifying them into a single, cohesive desktop environment.
+**Bard's Library** merges an offline-first EPUB reading engine with a native audio dock, a multi-source book discovery catalog, and an integrated Gemini literary assistant. It solves the friction of juggling separate e-reader apps, YouTube tabs, and browser windows by bringing reading, soundscapes, and AI matchmaking into a single desktop application.
 
-Whether you are studying classic literature with synchronized classical piano, working through textbooks accompanied by 24/7 lofi beats, or reading offline on a flight with procedural rain synthesis, Bard's Library provides a focused, tactile reading experience.
+Whether you are studying classic literature with classical piano, reading web novels with ambient rain synthesis, or managing personal EPUB libraries on a flight, Bard's Library delivers a focused, tactile reading experience.
 
 ---
 
 ## Key Features
 
-### 🌐 Global Online Catalog & Web EPUB Importer
-- **70,000+ Online Books, Manga Adaptations & Light Novels**: Search Gutenberg and open web libraries via live REST integration with Gutendex. Filter across Manga & Comics, Light Novels, Manhwa & Asian Fiction, Biographies & Memoirs, Novels & Classics, Sci-Fi & Cyberpunk, Mystery, and Philosophy.
-- **1-Click Download & Read**: Download online titles directly into local IndexedDB for permanent offline access.
-- **Direct Web Link Importer**: Paste any CORS-accessible `.epub` link from Standard Ebooks, Archive.org, or online light novel / webtoon mirrors to download and read immediately.
-- **Local File Drag-and-Drop**: Load any personal `.epub` file directly from your computer with automated metadata parsing.
+### 🏠 Dedicated Home Dashboard
+- **Reading Progress Analytics**: Tracks total hours read and day streaks locally using IndexedDB.
+- **Continue Reading Hero**: Resume your active book with a single click, showing real-time chapter and percentage progress.
+- **Soundscape Lounge**: One-touch playback triggers for ambient study environments directly from the dashboard.
+- **Categorized Discovery Shelves**: Curated sections for Manga & Webtoons, Light Novels & Fantasy, Classics, and Biographies.
 
-### 🤖 AI Soundtrack & Next-Read Matchmaker
-- **Dedicated Reading Companion**: Built with Google Gemini (`gemini-1.5-flash`) with full zero-key / offline fallback support. Replaces generic chatbot banter with focused literary matchmaking.
-- **Book-Matched Soundtrack Matchmaker**: Select or type customizable moods (*Cozy Study*, *Melancholic Rain*, *Epic Fantasy*, *Gothic Dark*, *Peaceful Forest*, *Cyberpunk Synth*). Recommends 3 curated, mood-calibrated instrumental tracks with 1-click **Play in Dock** button that immediately queues and plays the audio in the bottom player dock.
-- **End-of-Book Next-Read Matchmaker**: Suggests kindred books, manga, and series when finishing a chapter or book (>95% progress). Filter by format (*Manga*, *Light Novel*, *Manhwa*, *Biography*, *Novel*) with 1-click **Find in Catalog** to instantly search the online open library.
-- **Highlight-to-Music**: Select any evocative passage in the text to instantly generate book-matched ambient music matching the emotional tone of that exact scene.
+### 🌐 Multi-Source Catalog & Smart EPUB Importer
+- **70,000+ Titles via Parallel APIs**: Real-time integration with Open Library and Gutendex for world literature, modern fiction, light novels, and biography search.
+- **Instant Web Novel & Manga Indexing**: Pre-indexed metadata for popular series like *The Beginning After the End*, *Solo Leveling*, *Omniscient Reader's Viewpoint*, *Tower of God*, and *Berserk*.
+- **1-Click Download for Open-Access Works**: Immediate binary download of public domain titles into local storage.
+- **Direct Web Link Importer**: Paste direct `.epub` links from Standard Ebooks, Archive.org, or online mirrors for instant download and reading.
+- **Drag-and-Drop Local Files**: Load any personal `.epub` from your local machine with automatic cover color and metadata extraction.
+
+### 🎵 Curated Soundscapes & Procedural Audio
+- **Curated Instrumental Soundtracks**: Smooth acoustic guitar, ambient piano, neo-classical cello, Studio Ghibli instrumentals, smooth coffeehouse jazz, and lofi chill.
+- **Procedural Web Audio Synthesizers**: Zero-network client-side synthesis for gentle rain, hearth fire crackle, and deep cosmic drones.
+- **Persistent Audio Dock**: Global playback controls with volume sliders, playlist cycling, and track search that stay active across all views.
+
+### 🤖 AI Literary Matchmaker & Reading Companion
+- **Google Gemini Integration**: Powered by `gemini-1.5-flash` with zero-key offline heuristic fallback.
+- **Soundtrack Matchmaker**: Select or type moods (*Cozy Study*, *Melancholic Rain*, *Epic Fantasy*, *Gothic Dark*, *Peaceful Forest*, *Cyberpunk Synth*) to generate 3 mood-calibrated instrumental recommendations with a 1-click **Play in Dock** button.
+- **End-of-Book Next-Read Matchmaker**: Automatically triggers upon completing a chapter or book (>95% progress) to recommend kindred books, manga, and series with a 1-click **Find in Catalog** shortcut.
+- **Highlight-to-Music**: Select any passage in the reader to generate tailored ambient music matching that exact scene.
 
 ### 💾 Local-First Storage (IndexedDB)
-- **Zero Account Requirement**: Books and reading data remain on your local machine.
-- **Blob Caching**: Downloaded public domain titles and imported local `.epub` files are stored as binary Blobs in IndexedDB (`bards_library_offline_db`), guaranteeing complete offline availability.
+- **Zero Account Requirement**: Reading data, bookmarks, and highlights stay private on your local disk.
+- **Binary Blob Caching**: Downloaded EPUB files are stored as binary Blobs in IndexedDB (`bards_library_db`), guaranteeing full offline accessibility.
 
-### ⚡ Optimized Performance & Code Splitting
-- **Modular Bundles**: Rollup-split chunks for `vendor` (React core), `reader` (epub.js), and `icons` (Lucide) ensuring sub-second startup times and clean memory usage.
-
-### 📦 Windows Executable Distribution
-- **Lightweight Distribution**: Chromium language packages pruned and compressed with LZMA2:
-  - **Portable Executable**: Standalone `release/Bard's Library 1.0.0.exe` (~100 MB).
-  - **Setup Installer**: Configurable NSIS `release/Bard's Library Setup 1.0.0.exe` (~112 MB).
+### 🎨 Custom Desktop Branding & Windows Taskbar Icon
+- **Vector Harp & Bookmark Emblem**: Official insignia combining an open book base, golden concert harp, and crimson bookmark ribbon.
+- **Windows Taskbar Integration**: Configured with `AppUserModelId` (`com.bardslibrary.app`) and multi-resolution `icon.ico` (16x16 to 256x256) for crisp rendering on Windows 10/11 taskbars, titlebars, and desktop shortcuts.
 
 ---
 
-## Content Formats & Global Catalog Availability
+## Content Formats & Catalog Coverage
 
 | Format | Availability & Ingestion Method | Notes |
 |---|---|---|
-| **Classics & World Literature** | Built-in Online Catalog (70,000+ Gutendex / Gutenberg titles) | Fully public domain; 1-click download directly into offline IndexedDB. |
-| **Biographies & Memoirs** | Built-in Online Catalog + Curated Starter Titles | Includes historical autobiographies (Benjamin Franklin, Marcus Aurelius, Ulysses S. Grant). |
-| **Light Novels & Web Fiction** | Online Discovery + Direct Web URL Importer | Public domain serialized adventures (Dumas, Verne) + direct EPUB import from web serial archives (Royal Road mirrors, Syosetu translations). |
-| **Manga & Comics Adaptations** | Direct Web URL Importer + Local File Dropper | Graphic illustrated classics (Tenniel's *Alice*, Doré's *Inferno*) plus personal EPUB graphic files. Commercial manga (Shueisha, Kodansha) are copyrighted and cannot be pre-bundled legally, but load seamlessly via local drag-and-drop. |
-| **Manhwa & Webtoons** | Direct Web URL Importer + AI Matchmaker | Load webtoon EPUB conversions or discover top series through the AI Next-Read Matchmaker with 1-click catalog search. |
+| **Classics & World Literature** | Built-in Online Catalog (70,000+ Gutendex / Gutenberg titles) | Public domain; 1-click download directly into offline IndexedDB. |
+| **Biographies & Memoirs** | Built-in Online Catalog + Open Library Search | Historical and contemporary autobiographies with immediate metadata and reading stats. |
+| **Light Novels & Web Fiction** | Open Library API + Embedded Index + Direct Web Importer | Instant metadata search for popular series; paste direct mirror links or drop local files to read. |
+| **Manga & Manhwa Adaptations** | Open Library API + Direct URL Importer + Drag-and-Drop | Indexed metadata for popular series. Commercial copyrighted titles load via local drag-and-drop or web EPUB import. |
 
 ---
 
@@ -66,14 +73,14 @@ Whether you are studying classic literature with synchronized classical piano, w
 | **Desktop Runtime** | Electron `44.7.2` | Native desktop window lifecycle and IPC |
 | **Frontend Framework** | React `19.1.0` | Declarative UI rendering |
 | **Language** | TypeScript `~6.0.3` | Strict type safety and contracts |
-| **Build & Dev Tool** | Vite `8.0.16` | Sub-second HMR and optimized bundler |
-| **Styling** | Tailwind CSS `v4.3.3` | Utility styling and CSS variable design tokens |
-| **Icons** | Lucide React `1.57.0` | Minimalist line iconography |
+| **Build & Dev Tool** | Vite `8.3.4` | Fast HMR and Rollup-based production bundler |
+| **Styling** | Tailwind CSS `v4.3.3` | Modern utility styling and CSS variable tokens |
+| **Icons** | Lucide React `1.57.0` | Minimalist interface iconography |
 | **E-Reader Core** | epubjs `0.3.93` | EPUB file parsing, layout flow, and pagination |
-| **Local Database** | IndexedDB | Offline binary book blob and bookmark storage |
+| **Local Database** | IndexedDB | Offline binary book blob and reading statistics storage |
 | **Music Streaming** | YouTube Data API v3 + IFrame API | Global music catalog search and headless playback |
-| **Audio Synthesis** | Web Audio API | Client-side procedural ambient noise generation |
-| **AI Assistant** | Google Gemini API | Literary analysis and contextual reading companion |
+| **Audio Synthesis** | Web Audio API | Zero-asset client-side procedural sound generation |
+| **AI Assistant** | Google Gemini API (`gemini-1.5-flash`) | Contextual literary analysis and soundtrack matchmaking |
 | **Packaging** | electron-builder `26.15.3` | Windows portable and NSIS installer compilation |
 
 ---
@@ -84,6 +91,7 @@ Whether you are studying classic literature with synchronized classical piano, w
 flowchart TD
     subgraph UI ["User Interface (React 19 + Tailwind CSS)"]
         Sidebar["Sidebar Navigation"]
+        HomeView["Home Dashboard"]
         Library["Library & Catalog View"]
         Reader["EpubReader View"]
         AudioDock["Audio Player Dock"]
@@ -102,25 +110,30 @@ flowchart TD
     end
 
     subgraph Storage ["Local-First Persistence"]
-        IDB[("IndexedDB: bards_library_offline_db")]
+        IDB[("IndexedDB: bards_library_db")]
         LStore[("localStorage: Settings & API Keys")]
     end
 
-    subgraph External ["External APIs (Optional Cloud)"]
+    subgraph External ["External APIs"]
+        OpenLibrary["Open Library API"]
+        Gutendex["Gutendex / Project Gutenberg"]
         YTAPI["YouTube Data API v3"]
         GeminiAPI["Google Gemini 1.5 Flash API"]
     end
 
     UI --> State
+    HomeView --> IDB
+    Library --> OpenLibrary
+    Library --> Gutendex
+    Library --> IDB
     Reader --> EpubEngine
+    Reader --> IDB
+    Reader --> GeminiAPI
     AudioDock --> AudioCtx
     AudioCtx --> YTIframe
     AudioCtx --> WebAudio
-    Library --> IDB
-    Reader --> IDB
-    Settings --> LStore
     AudioDock --> YTAPI
-    Reader --> GeminiAPI
+    Settings --> LStore
 ```
 
 ---
@@ -129,21 +142,33 @@ flowchart TD
 
 ```
 Bard's Library/
+├── build/
+│   ├── icon.ico                 # Multi-resolution Windows application icon (16x16 to 256x256)
+│   ├── icon.png                 # 256x256 high-resolution icon
+│   └── icon-512.png             # 512x512 master icon
 ├── electron/
-│   └── main.cjs                 # Electron main process (window lifecycle, CSP, local file handling)
+│   └── main.cjs                 # Electron main process (window lifecycle, taskbar icon, CSP)
 ├── public/
 │   ├── books/                   # Bundled starter public domain EPUB files
 │   │   ├── alice.epub
 │   │   └── frankenstein.epub
-│   └── vite.svg
+│   ├── icon.ico                 # Web favicon (ICO)
+│   ├── icon.png                 # Web favicon (PNG)
+│   └── icon.svg                 # Web favicon (SVG)
+├── scripts/
+│   └── generate-icons.cjs       # Node script to render vector icons to ICO and PNG formats
 ├── src/
 │   ├── components/
+│   │   ├── common/
+│   │   │   └── BardsLogo.tsx    # Official vector Harp and Bookmark insignia
+│   │   ├── home/
+│   │   │   └── HomeView.tsx     # Home dashboard (stats, resume reading, discovery shelves)
 │   │   ├── layout/
 │   │   │   ├── AppLayout.tsx    # Master app shell, sidebar grid, and bottom audio dock
 │   │   │   ├── AudioPlayer.tsx  # Dock player, search dialog, scrubber, and synth triggers
-│   │   │   └── Sidebar.tsx      # View navigation and context audio status badge
+│   │   │   └── Sidebar.tsx      # View navigation, branding, and audio status
 │   │   ├── library/
-│   │   │   └── LibraryView.tsx  # Editorial book cards, offline filter tabs, EPUB importer
+│   │   │   └── LibraryView.tsx  # Online catalog, genre chips, and local shelf grid
 │   │   ├── reader/
 │   │   │   ├── EpubReader.tsx   # epub.js canvas, typography bar, bookmarks, Gemini drawer
 │   │   │   └── ReaderView.tsx   # Reader route view wrapper
@@ -155,7 +180,8 @@ Bard's Library/
 │   ├── services/
 │   │   ├── ambientAudioEngine.ts# Web Audio API procedural synthesizer (Rain, Fire, Drone)
 │   │   ├── geminiService.ts     # Google Gemini API client for literary analysis
-│   │   ├── offlineDb.ts         # IndexedDB operations (save/load books, blobs, bookmarks)
+│   │   ├── offlineDb.ts         # IndexedDB operations (books, blobs, bookmarks, stats)
+│   │   ├── onlineBookService.ts # Multi-source Open Library + Gutendex search and indexing
 │   │   ├── storageService.ts    # Reading progress and CFI state persistence
 │   │   └── youtubeService.ts    # YouTube Data API v3 search and curated track definitions
 │   ├── App.tsx                  # HashRouter routing setup
@@ -171,11 +197,9 @@ Bard's Library/
 
 ## Prerequisites
 
-Before running or building the project locally, ensure you have:
-
 - **Node.js**: `v20.0.0` or higher ([Download Node.js](https://nodejs.org/))
 - **npm**: `v10.0.0` or higher (packaged with Node.js)
-- **Operating System**: Windows 10/11 (for generating Windows `.exe` binaries), or macOS/Linux for web preview.
+- **Operating System**: Windows 10/11 (for generating Windows `.exe` binaries), or macOS/Linux for development preview.
 
 ---
 
@@ -203,13 +227,13 @@ Open `.env` and configure your API keys:
 # Google Gemini API Key (for literary assistant)
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
 
-# YouTube Data API v3 Key (for search queries)
+# YouTube Data API v3 Key (for custom music searches)
 VITE_YOUTUBE_API_KEY=your_youtube_api_key_here
 ```
 
-> **Note**: API keys are completely optional for basic offline reading and procedural soundscapes. You can also configure or update these keys directly inside the running application under **Settings → API Keys**.
+> **Note**: API keys are completely optional. Offline reading, procedural synthesizers, and default curated soundscapes work out of the box without any keys. Keys can also be entered directly inside the application under **Settings -> API Keys**.
 
-### 4. Run the Development Server
+### 4. Run Development Server
 ```bash
 npm run dev
 ```
@@ -219,44 +243,21 @@ Open `http://localhost:5173` in your browser.
 
 ## Building Desktop Binaries
 
-Bard's Library uses `electron-builder` with maximum LZMA2 compression and pruned Chromium language files to produce compact Windows executables.
+Bard's Library uses `electron-builder` with maximum LZMA2 compression to produce compact Windows executables.
 
 ### Build Standalone Portable `.exe`
 ```bash
 npm run package:exe
 ```
-- Output: `release/Bard's Library 0.1.0.exe` (~100 MB)
-- Requires zero installation. Double-click to launch immediately on any Windows machine.
+- Output: `release/Bard's Library 1.0.0.exe` (~100 MB)
+- Portable executable with embedded custom icon. Double-click to run on any Windows system with zero installation.
 
 ### Build Windows Installer (NSIS Setup)
 ```bash
 npm run package:setup
 ```
-- Output: `release/Bard's Library Setup 0.1.0.exe` (~112 MB)
+- Output: `release/Bard's Library Setup 1.0.0.exe` (~112 MB)
 - Includes desktop shortcut creation, start menu integration, and uninstaller.
-
----
-
-## Configuration & Environment Variables
-
-| Variable | Required | Description | Fallback Location |
-|---|---|---|---|
-| `VITE_YOUTUBE_API_KEY` | Optional | YouTube Data API v3 key for searching songs and albums | Settings UI (`localStorage`) |
-| `VITE_GEMINI_API_KEY` | Optional | Google Gemini API key for in-reader AI literary analysis | Settings UI (`localStorage`) |
-
-### How to Get Your API Keys
-
-#### 1. YouTube Data API v3
-1. Visit the [Google Cloud Console](https://console.cloud.google.com/).
-2. Create a new project or select an existing one.
-3. Navigate to **APIs & Services → Library**, search for **YouTube Data API v3**, and click **Enable**.
-4. Go to **APIs & Services → Credentials** and click **Create Credentials → API Key**.
-5. Copy the key and paste it into `.env` as `VITE_YOUTUBE_API_KEY` (or enter it in the app's Settings).
-
-#### 2. Google Gemini API
-1. Visit [Google AI Studio](https://aistudio.google.com/).
-2. Click **Get API key** and generate a new key.
-3. Copy the key and paste it into `.env` as `VITE_GEMINI_API_KEY` (or enter it in the app's Settings).
 
 ---
 
@@ -273,40 +274,20 @@ npm run package:setup
 
 ## Offline Capabilities
 
-Bard's Library is built local-first:
-- **Offline Reading**: Bundled and imported `.epub` files are saved directly into your browser's IndexedDB. The app can be opened without an active internet connection to read books and view saved bookmarks.
+- **Offline Reading**: Bundled and imported `.epub` files are saved directly into IndexedDB. The app opens and functions without an internet connection.
 - **Offline Synthesizers**: Built-in procedural Web Audio synthesis algorithms generate continuous rain, hearth fire, and space drones with zero external audio assets or network requests.
-- **Cache Persistence**: Reading progress (EPUB CFI) is continuously saved, so returning to any book instantly restores your exact page location.
-
----
-
-## Troubleshooting
-
-### YouTube Searches Return Empty Results
-- Check that your YouTube Data API v3 key is active in the Google Cloud Console.
-- Ensure the YouTube Data API v3 has not exceeded its free daily quota (10,000 units/day).
-- If offline, switch to the built-in procedural synthesizers in the audio dock.
-
-### EPUB Rendering / Loading Errors
-- Ensure the imported file is a valid, DRM-free `.epub` archive. Files with Adobe DRM or proprietary formats (`.mobi`, `.azw3`) are not supported by standard EPUB readers.
-
-### PowerShell Script Execution Policy on Windows
-If `npm` scripts fail with a execution policy warning:
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-Or run commands via Command Prompt (`cmd.exe /c "npm run package:exe"`).
+- **Progress Persistence**: Reading position (EPUB CFI) and daily reading duration are continuously saved locally.
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please feel free to open issues or submit pull requests:
+Contributions are welcome:
 
 1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'feat: add some amazing feature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
+2. Create your Feature Branch (`git checkout -b feature/NewFeature`)
+3. Commit your Changes (`git commit -m "feat: add new feature"`)
+4. Push to the Branch (`git push origin feature/NewFeature`)
 5. Open a Pull Request
 
 ---
