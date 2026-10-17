@@ -12,6 +12,7 @@ import {
   X,
   Loader2,
   Sparkles,
+  Moon,
 } from "lucide-react";
 import { useAudio } from "../../context/AudioContext";
 
@@ -35,6 +36,9 @@ export const AudioPlayer: React.FC = () => {
     volume,
     isMuted,
     linkedBookTitle,
+    sleepTimerMinutes,
+    sleepTimerSecondsLeft,
+    setSleepTimer,
     playTrack,
     togglePlay,
     seek,
@@ -42,6 +46,7 @@ export const AudioPlayer: React.FC = () => {
     toggleMute,
   } = useAudio();
 
+  const [showSleepMenu, setShowSleepMenu] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("Coldplay");
   const [searchResults, setSearchResults] = useState<YouTubeTrack[]>(CURATED_YOUTUBE_TRACKS);
@@ -207,6 +212,61 @@ export const AudioPlayer: React.FC = () => {
             <YouTubeIcon className="w-3.5 h-3.5 text-red-500" />
             <span>Search</span>
           </button>
+
+          {/* Sleep Timer Selector */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSleepMenu(!showSleepMenu)}
+              className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 transition-colors ${
+                sleepTimerMinutes
+                  ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-hover)] shadow-sm"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+              title={
+                sleepTimerSecondsLeft !== null
+                  ? `Sleep timer: ${Math.floor(sleepTimerSecondsLeft / 60)}m ${sleepTimerSecondsLeft % 60}s remaining`
+                  : "Set Sleep Timer"
+              }
+            >
+              <Moon className="w-3.5 h-3.5" />
+              {sleepTimerSecondsLeft !== null && (
+                <span className="text-[10px] font-mono font-medium">
+                  {Math.floor(sleepTimerSecondsLeft / 60)}:
+                  {String(sleepTimerSecondsLeft % 60).padStart(2, "0")}
+                </span>
+              )}
+            </button>
+
+            {showSleepMenu && (
+              <div className="absolute bottom-full right-0 mb-2 p-1 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-lg shadow-xl flex flex-col gap-0.5 text-xs z-30 min-w-[96px]">
+                <div className="px-2.5 py-1 text-[10px] uppercase font-semibold text-[var(--text-muted)] border-b border-[var(--border-color)]">
+                  Sleep Timer
+                </div>
+                {[
+                  { label: "Off", val: null },
+                  { label: "15 min", val: 15 },
+                  { label: "30 min", val: 30 },
+                  { label: "45 min", val: 45 },
+                  { label: "60 min", val: 60 },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={() => {
+                      setSleepTimer(item.val);
+                      setShowSleepMenu(false);
+                    }}
+                    className={`px-2.5 py-1 text-left rounded text-[11px] font-medium transition-colors ${
+                      sleepTimerMinutes === item.val
+                        ? "bg-[var(--accent)] text-white"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <button
             onClick={toggleMute}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useOutletContext } from "react-router-dom";
 import ePub, { Book, Rendition } from "epubjs";
 import {
   ChevronLeft,
@@ -17,13 +17,35 @@ import {
   Bot,
   Send,
   X,
+  Highlighter,
+  Maximize2,
+  Minimize2,
+  Trash2,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAudio } from "../../context/AudioContext";
 import { saveReadingState, getReadingState } from "../../services/storageService";
-import { getBookFromOfflineDb, saveBookToOfflineDb } from "../../services/offlineDb";
+import {
+  getBookFromOfflineDb,
+  saveBookToOfflineDb,
+  HighlightItem,
+  saveHighlight,
+  getHighlightsByBook,
+  deleteHighlight,
+  recordReadingTime,
+} from "../../services/offlineDb";
 import { askGemini } from "../../services/geminiService";
 import { CURATED_CATALOG } from "../library/LibraryView";
+import type { AppLayoutContext } from "../layout/AppLayout";
+
+const HIGHLIGHT_COLORS: Record<
+  "yellow" | "green" | "purple",
+  { hex: string; bgClass: string; label: string }
+> = {
+  yellow: { hex: "#eab308", bgClass: "bg-amber-400", label: "Yellow" },
+  green: { hex: "#10b981", bgClass: "bg-emerald-400", label: "Mint" },
+  purple: { hex: "#a855f7", bgClass: "bg-purple-400", label: "Violet" },
+};
 
 interface TocItem {
   id: string;
@@ -42,6 +64,10 @@ export const EpubReader: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const targetBookId = queryParams.get("bookId");
 
+  const outletContext = useOutletContext<AppLayoutContext | null>();
+  const isZenMode = outletContext?.isZenMode ?? false;
+  const toggleZenMode = outletContext?.toggleZenMode ?? (() => {});
+
   const { theme, setTypography } = useTheme();
   const { linkedBookTitle, setLinkedBook } = useAudio();
 
@@ -53,6 +79,7 @@ export const EpubReader: React.FC = () => {
   const [currentBookName, setCurrentBookName] = useState<string>(
     linkedBookTitle || "The King in Yellow",
   );
+  const [currentBookId, setCurrentBookId] = useState<string>("");
   const [toc, setToc] = useState<TocItem[]>([]);
   const [showToc, setShowToc] = useState<boolean>(false);
   const [showControls, setShowControls] = useState<boolean>(false);
@@ -72,6 +99,73 @@ export const EpubReader: React.FC = () => {
   ]);
   const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
   const [selectedText, setSelectedText] = useState<string>("");
+  const [selectedCfiRange, setSelectedCfiRange] = useState<string>("");
+  const [highlights, setHighlights] = useState<HighlightItem[]>([]);
+  const [showHighlights, setShowHighlights] = useState<boolean>(false);
+
+  const applyAnnotationToRendition = (
+    cfiRange: string,
+    color: "yellow" | "green" | "purple",
+  ) => {
+    if (!renditionRef.current) return;
+    try {
+      renditionRef.current.annotations.add(
+        "highlight",
+        cfiRange,
+        {},
+        undefined,
+        "bards-hl",
+        {
+          fill: HIGHLIGHT_COLORS[color]?.hex || "#eab308",
+          "fill-opacity": "0.35",
+        },
+      );
+    } catch (e) {
+      console.warn("Annotation render error:", e);
+    }
+  };
+
+  const handleAddHighlight = async (color: "yellow" | "green" | "purple") => {
+    if (!selectedCfiRange || !selectedText) return;
+    const newHl: HighlightItem = {
+      id: `hl-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      bookId: currentBookId,
+      cfiRange: selectedCfiRange,
+      text: selectedText,
+      color,
+      createdAt: Date.now(),
+    };
+
+    applyAnnotationToRendition(newHl.cfiRange, newHl.color);
+    await saveHighlight(newHl);
+    setHighlights((prev) => [newHl, ...prev]);
+    setSelectedText("");
+    setSelectedCfiRange("");
+  };
+
+  const handleDeleteHighlight = async (id: string, cfiRange: string) => {
+    if (renditionRef.current) {
+      try {
+        renditionRef.current.annotations.remove(cfiRange, "highlight");
+      } catch (e) {
+        console.warn("Error removing annotation", e);
+      }
+    }
+    await deleteHighlight(id);
+    setHighlights((prev) => prev.filter((h) => h.id !== id));
+  };
+
+  const handleUpdateHighlightNote = async (hl: HighlightItem, note: string) => {
+    const updated = { ...hl, note };
+    await saveHighlight(updated);
+    setHighlights((prev) => prev.map((h) => (h.id === hl.id ? updated : h)));
+  };
+
+  const handleJumpToHighlight = (cfiRange: string) => {
+    if (renditionRef.current) {
+      renditionRef.current.display(cfiRange);
+    }
+  };
 
   const handleSendAi = async (customText?: string) => {
     const textToSend = customText || aiPrompt;
@@ -93,6 +187,16 @@ export const EpubReader: React.FC = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Accumulate reading analytics in IndexedDB every 60 seconds of active reading
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!document.hidden && isBookLoaded) {
+        recordReadingTime(60).catch(() => {});
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [isBookLoaded]);
 
   const formatSessionTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -132,6 +236,7 @@ export const EpubReader: React.FC = () => {
     setLinkedBook(name);
 
     const generatedId = `epub-${name.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
+    setCurrentBookId(generatedId);
 
     // Destroy existing rendition if any
     if (renditionRef.current) {
@@ -172,6 +277,17 @@ export const EpubReader: React.FC = () => {
 
       applyStylesToRendition();
 
+      // Load & restore highlights for this title
+      try {
+        const storedHls = await getHighlightsByBook(generatedId);
+        setHighlights(storedHls);
+        storedHls.forEach((hl) => {
+          applyAnnotationToRendition(hl.cfiRange, hl.color);
+        });
+      } catch (hlErr) {
+        console.warn("Could not load highlights:", hlErr);
+      }
+
       // Restore saved location from Rust backend / localStorage
       const savedState = await getReadingState(generatedId);
       if (savedState && savedState.cfi) {
@@ -195,13 +311,14 @@ export const EpubReader: React.FC = () => {
         }
       });
 
-      // Text selection listener for instant Gemini AI lookup
-      rendition.on("selected", (_cfiRange: string, contents: any) => {
+      // Text selection listener for instant Gemini AI lookup & highlighter
+      rendition.on("selected", (cfiRange: string, contents: any) => {
         try {
           const selection = contents.window.getSelection();
           const str = selection ? selection.toString().trim() : "";
           if (str && str.length > 2) {
             setSelectedText(str);
+            setSelectedCfiRange(cfiRange);
           }
         } catch (selErr) {
           console.warn("Selection listener error", selErr);
@@ -383,9 +500,34 @@ export const EpubReader: React.FC = () => {
             </button>
           )}
 
+          {/* Highlights & Notes Drawer Toggle */}
+          <button
+            onClick={() => {
+              setShowHighlights(!showHighlights);
+              if (!showHighlights) setShowAi(false);
+            }}
+            className={`p-1.5 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
+              showHighlights
+                ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-hover)]"
+                : "border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            }`}
+            title="Highlights & Notes Drawer"
+          >
+            <Highlighter className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <span className="hidden sm:inline">Notes</span>
+            {highlights.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[var(--accent)]/15 text-[var(--accent)] font-semibold">
+                {highlights.length}
+              </span>
+            )}
+          </button>
+
           {/* AI Companion Toggle */}
           <button
-            onClick={() => setShowAi(!showAi)}
+            onClick={() => {
+              setShowAi(!showAi);
+              if (!showAi) setShowHighlights(false);
+            }}
             className={`p-1.5 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
               showAi
                 ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-hover)]"
@@ -395,6 +537,20 @@ export const EpubReader: React.FC = () => {
           >
             <Bot className="w-3.5 h-3.5 text-[var(--accent)]" />
             <span className="hidden sm:inline">AI Companion</span>
+          </button>
+
+          {/* Zen Focus Mode Toggle */}
+          <button
+            onClick={toggleZenMode}
+            className={`p-1.5 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
+              isZenMode
+                ? "border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-hover)]"
+                : "border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            }`}
+            title={isZenMode ? "Exit Zen Mode (Esc)" : "Enter Zen Focus Mode"}
+          >
+            {isZenMode ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">Zen</span>
           </button>
 
           {/* Formatting Popover Toggle */}
@@ -614,6 +770,89 @@ export const EpubReader: React.FC = () => {
         </div>
       )}
 
+      {/* Highlights & Notes Flyout Drawer */}
+      {showHighlights && (
+        <div className="absolute top-16 right-6 w-96 max-h-[520px] z-50 flex flex-col rounded-2xl border border-[var(--border-color)] bg-[var(--bg-surface)] p-4 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
+            <div className="flex items-center gap-2">
+              <Highlighter className="w-4 h-4 text-[var(--accent)]" />
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Highlights & Notes</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--bg-secondary)] px-2 py-0.5 rounded border border-[var(--border-color)]">
+                {highlights.length} saved
+              </span>
+              <button
+                onClick={() => setShowHighlights(false)}
+                className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                title="Close Drawer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto space-y-3 py-3 max-h-80 text-xs">
+            {highlights.length === 0 ? (
+              <div className="text-center py-8 text-[var(--text-muted)]">
+                <Highlighter className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p>No highlights yet.</p>
+                <p className="text-[10px] mt-1">Select text in the reader to highlight with color and add notes.</p>
+              </div>
+            ) : (
+              highlights.map((hl) => (
+                <div
+                  key={hl.id}
+                  className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] space-y-2 group"
+                >
+                  <div
+                    onClick={() => handleJumpToHighlight(hl.cfiRange)}
+                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span
+                        className={`inline-block w-2.5 h-2.5 rounded-full ${
+                          HIGHLIGHT_COLORS[hl.color]?.bgClass || "bg-amber-400"
+                        }`}
+                      />
+                      <span className="text-[10px] font-mono text-[var(--text-muted)]">
+                        {new Date(hl.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="italic text-[var(--text-primary)] line-clamp-3">
+                      "{hl.text}"
+                    </p>
+                  </div>
+
+                  {/* Note input / display */}
+                  <div className="pt-1.5 border-t border-[var(--border-color)] flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      defaultValue={hl.note || ""}
+                      placeholder="Add personal note..."
+                      onBlur={(e) => handleUpdateHighlightNote(hl, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-2 py-1 text-[11px] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                    />
+                    <button
+                      onClick={() => handleDeleteHighlight(hl.id, hl.cfiRange)}
+                      className="p-1 rounded text-[var(--text-muted)] hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                      title="Delete highlight"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 4. Reading Canvas */}
       <div className="flex-1 relative flex items-center justify-center p-4 min-h-0 overflow-hidden">
         {/* Loading Spinner */}
@@ -717,26 +956,51 @@ export const EpubReader: React.FC = () => {
           </button>
         )}
 
-        {/* Floating Quick Lookup for Highlighted Text */}
+        {/* Floating Quick Highlighter & Lookup for Selected Text */}
         {selectedText && (
-          <div className="absolute bottom-6 z-40 flex items-center gap-2.5 bg-[var(--bg-surface)] border border-[var(--border-color)] px-4 py-2.5 rounded-xl shadow-xl backdrop-blur-md">
-            <span className="text-xs text-[var(--text-primary)] max-w-xs truncate italic">
+          <div className="absolute bottom-6 z-40 flex items-center gap-2 bg-[var(--bg-surface)] border border-[var(--border-color)] px-3 py-2 rounded-xl shadow-2xl backdrop-blur-md animate-in fade-in duration-200">
+            {/* Color buttons for highlights */}
+            <div className="flex items-center gap-1.5 pr-2 border-r border-[var(--border-color)]">
+              <button
+                onClick={() => handleAddHighlight("yellow")}
+                className="w-5 h-5 rounded-full bg-amber-400 hover:scale-110 active:scale-95 border border-amber-500/40 shadow-sm transition-all"
+                title="Highlight Yellow"
+              />
+              <button
+                onClick={() => handleAddHighlight("green")}
+                className="w-5 h-5 rounded-full bg-emerald-400 hover:scale-110 active:scale-95 border border-emerald-500/40 shadow-sm transition-all"
+                title="Highlight Mint"
+              />
+              <button
+                onClick={() => handleAddHighlight("purple")}
+                className="w-5 h-5 rounded-full bg-purple-400 hover:scale-110 active:scale-95 border border-purple-500/40 shadow-sm transition-all"
+                title="Highlight Violet"
+              />
+            </div>
+
+            <span className="text-xs text-[var(--text-primary)] max-w-[180px] sm:max-w-xs truncate italic">
               "{selectedText}"
             </span>
+
             <button
               onClick={() => {
                 setShowAi(true);
+                setShowHighlights(false);
                 handleSendAi(
                   `Please explain the meaning, literary themes, and context of this excerpt from "${currentBookName}": "${selectedText}"`,
                 );
                 setSelectedText("");
+                setSelectedCfiRange("");
               }}
-              className="px-3 py-1 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium shadow-sm transition-all active:scale-95 ml-1"
+              className="px-2.5 py-1 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium shadow-sm transition-all active:scale-95 ml-1"
             >
               Analyze
             </button>
             <button
-              onClick={() => setSelectedText("")}
+              onClick={() => {
+                setSelectedText("");
+                setSelectedCfiRange("");
+              }}
               className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
               title="Dismiss"
             >

@@ -9,13 +9,17 @@ import {
   Trash2,
   Loader2,
   FolderOpen,
+  Clock,
+  Flame,
 } from "lucide-react";
 import { useAudio } from "../../context/AudioContext";
 import {
   saveBookToOfflineDb,
   getAllOfflineBooks,
   deleteBookFromOfflineDb,
+  getReadingStats,
   StoredBook,
+  ReadingStats,
 } from "../../services/offlineDb";
 
 export const CURATED_CATALOG: StoredBook[] = [
@@ -86,6 +90,7 @@ export const LibraryView: React.FC = () => {
   const { playTrack, setLinkedBook } = useAudio();
 
   const [books, setBooks] = useState<StoredBook[]>([]);
+  const [stats, setStats] = useState<ReadingStats | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | "offline" | "online">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -144,6 +149,8 @@ export const LibraryView: React.FC = () => {
       );
 
       setBooks([...userCustomBooks, ...mergedCatalog]);
+      const currentStats = await getReadingStats();
+      setStats(currentStats);
     } catch (e) {
       console.error("Failed to load books from IndexedDB", e);
       setBooks(CURATED_CATALOG);
@@ -320,6 +327,71 @@ export const LibraryView: React.FC = () => {
           </label>
         </div>
       </div>
+
+      {/* Reading Analytics Strip */}
+      {stats && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[var(--bg-surface)] text-[var(--accent)]">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-semibold">
+                Time Read
+              </div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">
+                {stats.totalSecondsRead < 60
+                  ? `${stats.totalSecondsRead}s`
+                  : stats.totalSecondsRead < 3600
+                  ? `${Math.floor(stats.totalSecondsRead / 60)}m`
+                  : `${(stats.totalSecondsRead / 3600).toFixed(1)}h`}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[var(--bg-surface)] text-amber-500">
+              <Flame className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-semibold">
+                Daily Streak
+              </div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">
+                {stats.streakDays} {stats.streakDays === 1 ? "Day" : "Days"}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[var(--bg-surface)] text-[var(--text-secondary)]">
+              <BookOpen className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-semibold">
+                Total Titles
+              </div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">
+                {books.length} Books
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[var(--bg-surface)] text-emerald-400">
+              <CheckCircle className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-semibold">
+                Offline Ready
+              </div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">
+                {books.filter((b) => b.isOfflineAvailable).length} Cached
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Search Bar & Mode Filters */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

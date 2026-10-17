@@ -1,8 +1,11 @@
 {
   "name": "bards-library",
   "productName": "Bard's Library",
+  "description": "Distraction-free desktop e-reader with synchronized ambient audio, local-first storage, and AI literary assistance",
+  "author": "Bard's Library Contributors",
+  "license": "MIT",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {

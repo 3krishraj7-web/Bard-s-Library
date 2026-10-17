@@ -30,6 +30,9 @@ interface AudioContextType {
   volume: number;
   isMuted: boolean;
   linkedBookTitle: string | null;
+  sleepTimerMinutes: number | null;
+  sleepTimerSecondsLeft: number | null;
+  setSleepTimer: (minutes: number | null) => void;
   playTrack: (track: Track, bookTitle?: string) => void;
   togglePlay: () => void;
   seek: (time: number) => void;
@@ -41,7 +44,7 @@ interface AudioContextType {
 const DEFAULT_TRACK: Track = {
   id: "yt-lofigirl",
   youtubeId: "jfKfPfyJRdk",
-  title: "lofi hip hop radio - beats to relax/study to",
+  title: "Lofi Hip Hop Radio - Beats to relax/study to",
   artist: "Lofi Girl",
   duration: 0,
   artwork: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
@@ -59,11 +62,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [linkedBookTitle, setLinkedBookTitle] = useState<string | null>("The King in Yellow");
 
+  // Sleep timer state
+  const [sleepTimerMinutes, setSleepTimerMinutes] = useState<number | null>(null);
+  const [sleepTimerSecondsLeft, setSleepTimerSecondsLeft] = useState<number | null>(null);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ytPlayerRef = useRef<any>(null);
   const [isYtReady, setIsYtReady] = useState<boolean>(false);
 
-  const effectiveVolume = isMuted ? 0 : volume;
+  // Compute smooth fade-out multiplier if sleep timer is under 30 seconds
+  const fadeMultiplier =
+    sleepTimerSecondsLeft !== null && sleepTimerSecondsLeft <= 30
+      ? Math.max(0, sleepTimerSecondsLeft / 30)
+      : 1;
+  const effectiveVolume = (isMuted ? 0 : volume) * fadeMultiplier;
 
   // Initialize native Audio element for local/direct stream playback
   useEffect(() => {
@@ -260,6 +272,28 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsMuted((prev) => !prev);
   };
 
+  // Decrement sleep timer every second when active and playing
+  useEffect(() => {
+    if (sleepTimerSecondsLeft === null || !isPlaying) return;
+    const interval = window.setInterval(() => {
+      setSleepTimerSecondsLeft((prev) => {
+        if (prev === null) return null;
+        if (prev <= 1) {
+          setIsPlaying(false);
+          setSleepTimerMinutes(null);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sleepTimerSecondsLeft, isPlaying]);
+
+  const setSleepTimer = (minutes: number | null) => {
+    setSleepTimerMinutes(minutes);
+    setSleepTimerSecondsLeft(minutes ? minutes * 60 : null);
+  };
+
   const setLinkedBook = (bookTitle: string | null) => {
     setLinkedBookTitle(bookTitle);
   };
@@ -274,6 +308,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         volume: effectiveVolume,
         isMuted,
         linkedBookTitle,
+        sleepTimerMinutes,
+        sleepTimerSecondsLeft,
+        setSleepTimer,
         playTrack,
         togglePlay,
         seek,

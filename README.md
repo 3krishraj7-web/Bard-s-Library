@@ -2,7 +2,7 @@
 
 > A distraction-free desktop e-reader and ambient music workspace engineered for deep reading, study sessions, and literary exploration.
 
-[![Release](https://img.shields.io/badge/release-v0.1.0-6366f1.svg)](https://github.com)
+[![Release](https://img.shields.io/badge/release-v0.2.0-6366f1.svg)](https://github.com)
 [![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178c6.svg)](https://www.typescriptlang.org/)
 [![Electron](https://img.shields.io/badge/Electron-44.7-47848f.svg)](https://www.electronjs.org/)
@@ -24,9 +24,22 @@ Whether you are studying classic literature with synchronized classical piano, w
 ### 📖 Distraction-Free EPUB Reader
 - **Rendering Engine**: Built on `epub.js` with virtual pagination, continuous progress tracking, and chapter navigation.
 - **Customizable Typography**: Real-time controls for font sizing (`12px` to `36px`), line height, reading margins (`Narrow`, `Normal`, `Wide`), and typeface selection (Serif, Sans-serif, Monospace).
-- **Session Focus Timer**: Non-intrusive session timer tracking active reading duration.
+- **Zen Focus Mode**: Instant full-canvas immersion collapsing the sidebar and player dock. Easily toggled via toolbar button or `Escape` key.
 - **Persistent Bookmarks**: One-click bookmarking tied to specific EPUB CFI locations, saved across sessions.
 - **Starter Public Domain Classics**: Bundles starter titles (*Alice's Adventures in Wonderland* and *Frankenstein*) pre-cached in local IndexedDB.
+
+### 🖍️ Multi-Color Highlights & Notes Drawer
+- **Inline Text Highlighting**: Select any passage in the reader to apply persistent color highlights in Yellow, Mint, or Violet.
+- **Live Canvas Annotations**: Renders directly on virtual EPUB pages via epub.js annotation hooks.
+- **Notes Flyout Drawer**: Browse all captured quotes with timestamp tags, jump directly to page locations, attach notes, or remove highlights.
+
+### ⏱️ Sleep Timer & Smooth Volume Fade
+- **Preset Countdown Timers**: Configure sleep shutoff intervals (`15m`, `30m`, `45m`, `60m`, or `Off`).
+- **Smooth 30s Audio Fade**: Automatically decreases volume during the final 30 seconds to prevent abrupt silence during rest or study.
+
+### 📊 Local-First Reading Analytics & Streaks
+- **Zero-Telemetry Tracking**: Total reading duration, daily session logs, and continuous day streaks calculated completely client-side in IndexedDB.
+- **Library Dashboard**: Quick-reference statistics displayed directly above your book catalog.
 
 ### 🎵 Unified YouTube Audio Dock
 - **World Catalog Search**: Search and stream any song, artist, classical album, or ambient track directly using the YouTube Data API v3.
@@ -56,8 +69,8 @@ Whether you are studying classic literature with synchronized classical piano, w
 
 ### 📦 Optimized Windows Executable
 - **Lightweight Distribution**: Chromium language packages pruned and compressed with LZMA2:
-  - **Portable Executable**: Standalone `release/Bard's Library 0.1.0.exe` (~100 MB).
-  - **Setup Installer**: Configurable NSIS `release/Bard's Library Setup 0.1.0.exe` (~112 MB).
+  - **Portable Executable**: Standalone `release/Bard's Library 0.2.0.exe` (~100 MB).
+  - **Setup Installer**: Configurable NSIS `release/Bard's Library Setup 0.2.0.exe` (~112 MB).
 
 ---
 
